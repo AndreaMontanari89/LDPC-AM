@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{7900b07d-778b-4319-a946-5dc117767b92}</ProjectGuid>
+    <RootNamespace>LDPCAM</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_UNICODE;_WINDOWS;__WXMSW__;NOPCH;_CRT_SECURE_NO_WARNINGS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.0\build\x86-pc-win32\install\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.0\build\x86-pc-win32\install\x86\vc15\lib;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib;C:\Program Files\MATLAB\R2021b\extern\lib\win64\microsoft</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;version.lib;Shlwapi.lib;opencv_world450d.lib;wxmsw31ud_xrc.lib;wxmsw31ud_adv.lib;wxbase31ud_xml.lib;wxmsw31ud_html.lib;wxmsw31ud_core.lib;wxbase31ud_net.lib;wxbase31ud.lib;wxexpatd.lib;wxregexud.lib;wxzlibd.lib;wxtiffd.lib;wxpngd.lib;wxjpegd.lib;libMatlabEngine.lib;libMatlabDataArray.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_UNICODE;_WINDOWS;__WXMSW__;NOPCH;_CRT_SECURE_NO_WARNINGS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\x64\vc15\lib;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_x64_lib;C:\Program Files\MATLAB\R2021b\extern\lib\win64\microsoft</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;version.lib;Shlwapi.lib;opencv_world454d.lib;wxmsw31ud_xrc.lib;wxmsw31ud_adv.lib;wxbase31ud_xml.lib;wxmsw31ud_html.lib;wxmsw31ud_core.lib;wxbase31ud_net.lib;wxbase31ud.lib;wxexpatd.lib;wxregexud.lib;wxzlibd.lib;wxtiffd.lib;wxpngd.lib;wxjpegd.lib;libMatlabEngine.lib;libMatlabDataArray.lib;libmx.lib;libmat.lib;libmex.lib;libut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_UNICODE;_WINDOWS;__WXMSW__;NOPCH;_CRT_SECURE_NO_WARNINGS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswu;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\x64\vc15\lib;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_x64_lib;C:\Program Files\MATLAB\R2021b\extern\lib\win64\microsoft</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;version.lib;Shlwapi.lib;opencv_world454.lib;wxmsw31u_xrc.lib;wxmsw31u_adv.lib;wxbase31u_xml.lib;wxmsw31u_html.lib;wxmsw31u_core.lib;wxbase31u_net.lib;wxbase31u.lib;wxexpat.lib;wxregexu.lib;wxzlib.lib;wxtiff.lib;wxpng.lib;wxjpeg.lib;libMatlabEngine.lib;libMatlabDataArray.lib;libmx.lib;libmat.lib;libmex.lib;libut.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswu;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Src\AppEvents.h" />
+    <ClInclude Include="..\Src\LDPC-AM.h" />
+    <ClInclude Include="..\Src\LDPCMan.h" />
+    <ClInclude Include="..\Src\MainFrm.h" />
+    <ClInclude Include="..\Src\Resource.h" />
+    <ClInclude Include="..\Src\stdafx.h" />
+    <ClInclude Include="..\Src\TannerGraph.h" />
+    <ClInclude Include="..\Src\Utils.h" />
+    <ClInclude Include="..\Src\Version.h" />
+    <ClInclude Include="..\Src\xppCircularQueue.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Src\AppEvents.cpp" />
+    <ClCompile Include="..\Src\LDPC-AM.cpp" />
+    <ClCompile Include="..\Src\LDPCMan.cpp" />
+    <ClCompile Include="..\Src\MainFrm.cpp" />
+    <ClCompile Include="..\Src\stdafx.cpp" />
+    <ClCompile Include="..\Src\TannerGraph.cpp" />
+    <ClCompile Include="..\Src\Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\Src\LDPC-AM.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -1,0 +1,90 @@
+//
+// Nome file:	xppIPM.rc
+//
+// Descrizione:	Win32 resource file per xppIPM
+//
+// Storia:
+// Data		Autore	Commento
+// ---------------------------------------------------------------------------
+// 22-10-14	SR		Prima stesura
+//
+#include "Resource.h"
+#include "Version.h"
+
+// Note that the icon used by the Explorer (i.e. the programs icon) is the
+// first icon in the executable and the icons are sorted both by their order
+// (Win9x) and by alphabetically (!) (NT), so put this icon first and give it
+// a name starting with "a"
+IDR_APP_MAIN_ICON ICON "res\\xppIPM.ico"
+
+// set this to 1 if you don't want to use manifest resource (manifest resource
+// is needed to enable visual styles on Windows XP - see docs/msw/winxp.txt
+// for more information)
+#define wxUSE_NO_MANIFEST 0
+
+// this is not always needed but doesn't hurt (except making the executable
+// very slightly larger): this file contains the standard icons, cursors, ...
+#include "wx\\msw\\wx.rc"
+
+//DF Inserire qui altre risorse
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+// 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+#if defined( VER_LANG_NEUTRAL )
+	#ifndef VER_LANG
+	#define VER_LANG 0x0000
+	#endif
+	#ifndef VER_CP
+	#define VER_CP 0x04E4
+	#endif
+	#ifndef VER_BLOCK
+	#define VER_BLOCK "000004E4"
+	#endif
+#else
+	#ifndef VER_LANG
+	#define VER_LANG 0x0409
+	#endif
+	#ifndef VER_CP
+	#define VER_CP 0x04E4
+	#endif
+	#ifndef VER_BLOCK
+	#define VER_BLOCK "040904E4"
+	#endif
+#endif
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION		VER_FILE_VERSION
+ PRODUCTVERSION		VER_PRODUCT_VERSION
+ FILEFLAGSMASK		VER_FILE_FLAGS_MASK
+ FILEFLAGS			VER_FILE_FLAGS
+ FILEOS				VER_FILE_OS
+ FILETYPE			VER_FILE_TYPE
+ FILESUBTYPE		VER_FILE_SUBTYPE
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK VER_BLOCK
+        BEGIN
+			VALUE "Comments", VER_COMMENT
+            VALUE "CompanyName", "Musa s.r.l."
+            VALUE "FileDescription", VER_FILE_DESCRIPTION_STR
+            VALUE "FileVersion", VER_FILE_VERSION_STR
+            VALUE "InternalName", VER_INTERNAL_NAME_STR
+            VALUE "LegalCopyright", VER_COPYRIGHT_STR
+            VALUE "OriginalFilename", VER_ORIGINAL_FILENAME_STR
+            VALUE "ProductName", VER_PRODUCTNAME_STR
+            VALUE "ProductVersion", VER_PRODUCT_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", VER_LANG, VER_CP
+    END
+END
