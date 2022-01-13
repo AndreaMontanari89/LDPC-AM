@@ -6,6 +6,7 @@
 #include "LDPCMan.h"
 #include "AppEvents.h"
 #include "Utils.h"
+#include "TannerGraph.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -190,7 +191,16 @@ int CLDPCMan::__InitObj(int iInitObjMode)
 			&m_MainProcThread.m_dwThreadId);
 
 		cv::Mat x;
-		alist2cvMat("C:\\Develop\\LDPC-AM\\Src\\Matrix.txt", x);
+		alist2cvMat("E:\\Develop\\LDPC-Codes\\test\\Hp.alist.txt", x);
+		CTannerGraph* mainGraph = new CTannerGraph(x.cols, x.rows);
+
+		std::vector<double> channel = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
+		mainGraph->Initialization(channel,1.0);
+
+		mainGraph->CheckNodeUpdate();
+		mainGraph->VariableNodeUpdate();
+
+		delete mainGraph;
 
 		// Funzione terminata correttamente
 		iFuncRetVal = 0;
@@ -763,7 +773,7 @@ int	CLDPCMan::alist2cvMat(std::string strFileName, cv::Mat& pMat)
 		}
 
 		cv::imwrite("H.bmp", pMat);
-
+#ifdef MATLAB
 		using namespace matlab::engine;
 
 		wxString strstr = "H=[";
@@ -818,6 +828,7 @@ int	CLDPCMan::alist2cvMat(std::string strFileName, cv::Mat& pMat)
 			wxString g = e.what();
 			g = g;
 		}
+#endif
 
 	} while (0);
 

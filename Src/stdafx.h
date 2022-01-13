@@ -62,7 +62,9 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
-#include "MatlabEngine.hpp"
-#include "MatlabDataArray.hpp"
+#ifdef MATLAB
+	#include "MatlabEngine.hpp"
+	#include "MatlabDataArray.hpp"
+#endif
 
 #endif
