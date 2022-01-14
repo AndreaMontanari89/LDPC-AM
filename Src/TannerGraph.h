@@ -14,34 +14,54 @@ public:
 
 public:
 	int				GetNodeID()										{ return m_iNodeID; }
-	void			AddLink(CTannerNode* item)						{ m_pLinks.push_back(item); SetMetric(0.0, 0.0, item->GetNodeID()); };
+	void			AddLink(CTannerNode* item)						{ m_pLinks.push_back(item); m_metrics.push_back(0.0); };
 	int				GetNumLinks()									{ return m_pLinks.size(); };
 	CTannerNode*	GetLink(int iLinkID)							{ if (iLinkID < m_pLinks.size()) return m_pLinks[iLinkID]; else return nullptr; };
 
-	std::pair<double, double> GetMetric(int iLinkID)
+	double GetMetric(int iLinkID)
 	{ 
+		double dRetVal = DBL_MIN;
 		if (iLinkID < m_pLinks.size())
-			return m_metrics[iLinkID];
+			dRetVal = m_metrics[iLinkID];
 		else
-			return std::pair<double, double>(DBL_MIN, DBL_MIN);
+			dRetVal = DBL_MIN;
+
+		return dRetVal;
 	};
 
-	void SetMetric(double metric_n_m, double metric_m_n, int iDstNodeID )
+	double GetNodeMetric( int iDstNode ) // torna la metrica al lato del nodo link con id iDstNode
 	{
-		std::vector<CTannerNode*>::iterator it = std::find_if(m_pLinks.begin(), m_pLinks.end(), [iDstNodeID](const CTannerNode* x) {return ((CTannerNode*)x)->GetNodeID() == iDstNodeID; });
-		std::pair<double, double> prev = m_metrics[std::distance(m_pLinks.begin(), it)];
+		double dRetVal = DBL_MIN;
+		for (int l = 0; l < m_pLinks.size(); l++)
+		{
+			CTannerNode* pDstNode = m_pLinks[l];
+			if (pDstNode->GetNodeID() != iDstNode)
+				continue;
 
-		if (metric_n_m != DBL_MIN) prev.first = metric_n_m;
-		if (metric_m_n != DBL_MIN) prev.second = metric_m_n;
-			
-		m_metrics[std::distance(m_pLinks.begin(), it)] = prev;
+			for (int k = 0; k < pDstNode->GetNumLinks(); k++)
+			{
+				if (pDstNode->GetLink(k)->GetNodeID() == m_iNodeID)
+				{
+					dRetVal = pDstNode->GetMetric(k);
+				}
+			}
+		}
+
+		return dRetVal;
+	};
+
+	void SetMetric(int iLinkID, double metric )
+	{
+		if (iLinkID < m_pLinks.size())
+			m_metrics[iLinkID] = metric;
 	}
+
 protected:
 
 	// dati relativi alla logica
 	//
-	std::vector<CTannerNode*>						m_pLinks;
-	std::vector<std::pair<double, double>>			m_metrics;
+	std::vector<CTannerNode*>	m_pLinks;
+	std::vector<double>			m_metrics;
 
 	int							m_iNodeID;
 	
@@ -54,7 +74,7 @@ protected:
 class CTannerGraph
 {
 public:
-	CTannerGraph(int N, int M);
+	CTannerGraph(cv::Mat pchk);
 	~CTannerGraph();
 
 	// Creazione di un link tra nodi
@@ -64,7 +84,8 @@ public:
 	void Initialization(std::vector<double> channel_data, double sigma_2);
 	void CheckNodeUpdate();
 	void VariableNodeUpdate();
-	bool Decision();
+	bool Decision(cv::Mat pchk, wxString& cw);
+	wxString Decode(std::vector<double> channel_data, double sigma_2, cv::Mat pchk, int iAttempt);
 
 	class TCheckNode : public CTannerNode
 	{

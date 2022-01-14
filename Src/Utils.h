@@ -3,5 +3,6 @@
 #pragma once
 
 std::vector<int> IntVectorFromString(wxString strWork);
+std::vector<double> DoubleVectorFromString(wxString strWork);
 
 #endif

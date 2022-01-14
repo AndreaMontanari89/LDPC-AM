@@ -7,6 +7,7 @@
 #include "AppEvents.h"
 #include "Utils.h"
 #include "TannerGraph.h"
+#include "LDPC-codes-Lib.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -191,14 +192,61 @@ int CLDPCMan::__InitObj(int iInitObjMode)
 			&m_MainProcThread.m_dwThreadId);
 
 		cv::Mat x;
-		alist2cvMat("E:\\Develop\\LDPC-Codes\\test\\Hp.alist.txt", x);
-		CTannerGraph* mainGraph = new CTannerGraph(x.cols, x.rows);
 
-		std::vector<double> channel = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, };
-		mainGraph->Initialization(channel,1.0);
+		// Creazione matriche di controllo di parità tramite alist file
+		alist2cvMat("C:\\Develop\\LDPC-Codes\\test\\H.alist.txt", x);
 
-		mainGraph->CheckNodeUpdate();
-		mainGraph->VariableNodeUpdate();
+		int block_size = x.cols;
+		int word_size = x.cols-x.rows;
+
+		/*Parte codifica e trasmissione*/
+
+		// Creazione matriche di controlo di parità tramite alist file
+		alist2pchk((char*)"C:\\Develop\\LDPC-Codes\\test\\H.alist.txt", (char*)"C:\\Develop\\LDPC-Codes\\test\\H.pchk");
+		//Creazione della matrice generatrice
+		make_gen((char*)"C:\\Develop\\LDPC-Codes\\test\\H.pchk", (char*)"C:\\Develop\\LDPC-Codes\\test\\G.Gen", (char*)"dense", NULL, NULL, NULL, NULL );
+		//Codifica del file di input
+		encode((char*)"C:\\Develop\\LDPC-Codes\\test\\H.pchk", (char*)"C:\\Develop\\LDPC-Codes\\test\\G.Gen", (char*)"C:\\Develop\\LDPC-Codes\\test\\input2.txt", (char*)"C:\\Develop\\LDPC-Codes\\test\\enc");
+		//Trasmissione sul canale
+		transmit((char*)"C:\\Develop\\LDPC-Codes\\test\\enc", (char*)"C:\\Develop\\LDPC-Codes\\test\\rec", (char*)"1", (char*)"awgn", (char*)"0.8");
+
+		CTannerGraph*	mainGraph = new CTannerGraph(x);
+		wxArrayString	wxasWords;
+		wxArrayString	wxasRX;
+
+		if (!wxFile::Exists("C:\\Develop\\LDPC-Codes\\test\\rec"))
+			break;
+
+		wxTextFile	tf("C:\\Develop\\LDPC-Codes\\test\\rec");
+		wxString	strApp;
+		wxString	cw;
+		tf.Open();
+
+		strApp = tf.GetFirstLine();
+
+		if (strApp != wxEmptyString)
+		{
+			std::vector<double> channel = DoubleVectorFromString(strApp);
+			cw = mainGraph->Decode(channel, 0.8, x, 1000 );
+
+			wxasWords.push_back(cw);
+			wxasRX.push_back(cw.Right(word_size));
+
+			do
+			{
+				strApp = tf.GetNextLine();
+
+				if (strApp == wxEmptyString)
+					break;
+
+				std::vector<double> channel = DoubleVectorFromString(strApp);
+				cw = mainGraph->Decode(channel, 0.8, x, 1000);
+
+				wxasWords.push_back(cw);
+				wxasRX.push_back(cw.Right(word_size));
+
+			} while (1);
+		}
 
 		delete mainGraph;
 
@@ -759,7 +807,7 @@ int	CLDPCMan::alist2cvMat(std::string strFileName, cv::Mat& pMat)
 		vNDirWeight = IntVectorFromString(strApp);
 
 		// Azzermento matrice H
-		pMat = cv::Mat::zeros(M, N, CV_32SC1);
+		pMat = cv::Mat::zeros(M, N, CV_32FC1);
 
 		//
 		for (uint i = 0; i < vMDirWeight.size(); i++)
@@ -769,7 +817,7 @@ int	CLDPCMan::alist2cvMat(std::string strFileName, cv::Mat& pMat)
 
 			for( uint j = 0; j < vRow.size(); j++ )
 				if(vRow[j] != 0)
-					pMat.at<int32_t>(cv::Point(i, vRow[j]-1)) = 1;
+					pMat.at<float>(cv::Point(i, vRow[j]-1)) = 1.0;
 		}
 
 		cv::imwrite("H.bmp", pMat);

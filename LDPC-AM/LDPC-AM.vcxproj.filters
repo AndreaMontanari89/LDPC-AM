@@ -45,6 +45,9 @@
     <ClInclude Include="..\Src\Utils.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\LDPC-codes-Lib.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\LDPC-AM.cpp">
