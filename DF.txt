@@ -1,0 +1,22 @@
+DA FARE
+gestione canale bsc
+	booleno nel manager
+	lettura diversa dei valori dal canale
+	gestione spin Pe
+	
+Distruzione grafico tanner
+	Delete nelle cleanup
+	delete dei nodi sulla distruttore
+	delete nodi quando si carica una nuova matrice
+	
+Gestione led nella tabella
+
+Simulazione a tempo ( tipo ogni sec )?
+Simulazione su spin control AWGN o BSC
+
+Gestire simulazione con immagini binarie
+
+Input per gestire massime iterazioni di decodifica
+	Menù con anche about esci etc ?
+	
+Parte del codice sistematico in ricezione è all'inizio non alla fine come speigato a lezione... invertirlo?

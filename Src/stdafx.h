@@ -24,6 +24,7 @@
 	#include "wx/wx.h"
 #endif
 
+#include "vld.h"
 
 #include <wx/event.h>
 #include <wx/socket.h>
@@ -45,11 +46,6 @@
 #include "wx/xrc/xmlres.h"
 #include "wx/dir.h"
 
-#include <sys/timeb.h>
-#include <Shlwapi.h>
-#include <Shlobj.h>
-#include <Wincrypt.h>
-
 #include <list>
 #include <map>
 #include <string>
@@ -57,6 +53,7 @@
 
 #include <opencv2/world.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"

@@ -187,3 +187,70 @@ wxString CTannerGraph::Decode(std::vector<double> channel_data, double sigma_2, 
 
 	return strRetVal;
 }
+
+void CTannerGraph::Draw()
+{
+	int iWidthPadPx = 20;		// Pixel di padding in larghezza
+	int iHeigttPadPx = 20;		// Pixel di padding in altezza
+	int iCircleRadius = 20;		// Raggio cerchi variable nodes
+	int iSquareLenght = 40;		// Lato quadrati check nodes
+	int iVNSpace = 30;			// Spazio tra i variable nodes
+	int iCNSpace = 30;			// Spazio tra i check nodes
+	int iVNCNSpace = 400;		// Spazio in altezza tra le due file di nodi
+
+	cv::Scalar CNCol = cv::Scalar(168, 235, 188);
+	cv::Scalar VNCol = cv::Scalar(227, 189, 255);
+
+	int iWidthGrph = (m_iN * (iCircleRadius * 2)) + ((m_iN - 1) * iVNSpace) + (2 * iWidthPadPx);
+	int HeihgtGrph = (iCircleRadius * 2) + iVNCNSpace + iSquareLenght + (2 * iHeigttPadPx);
+
+	cv::Mat mCanvas = cv::Mat(HeihgtGrph, iWidthGrph, CV_8UC3);
+	mCanvas = cv::Scalar(255, 255, 255);
+
+	std::vector<cv::Point> VNAttachPoints;  // punti di attacco per ogni nodo per partenza e arrivo link
+	std::vector<cv::Point> CNAttachPoints;
+
+	// disegno i variable nodes
+	for (int v = 0; v < m_iN; v++)
+	{
+		int iCX = iWidthPadPx + (((v + 1) * iCircleRadius) + (v * (iVNSpace + iCircleRadius)));
+		int iCY = iHeigttPadPx + iCircleRadius;
+		cv::circle(mCanvas, cv::Point(iCX, iCY), iCircleRadius, CNCol, -1);
+		cv::putText(mCanvas, wxString::Format("VN%d", v + 1).ToStdString(), cv::Point(iCX, iCY - iCircleRadius - 2), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0, 0, 0));
+		VNAttachPoints.push_back(cv::Point(iCX, iCY + iCircleRadius));
+	}
+
+	//disegno i check node
+	int iSpaceCNReq = ((m_iM * iSquareLenght) + ((m_iM - 1) * iCNSpace)); // spazioe che occupano i CN nel graifco mi serve per centrarli
+	int iFirstX = (iWidthGrph / 2) - (iSpaceCNReq / 2);
+	for (int c = 0; c < m_iM; c++)
+	{
+		int iX = iFirstX + (c* iSquareLenght) + (c* iCNSpace);
+		int iY = mCanvas.rows - iHeigttPadPx - iSquareLenght;
+		int iW = iSquareLenght;
+		int iH = iSquareLenght;
+
+		int iCX = (iX + (iW / 2));
+		int iCY = (iY + (iW / 2));
+
+		cv::rectangle(mCanvas, cv::Rect(iX, iY, iW, iH), VNCol, -1);
+		cv::putText(mCanvas, wxString::Format("CN%d", c + 1).ToStdString(), cv::Point(iCX, iCY + iCircleRadius + 12), cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(0, 0, 0));
+		CNAttachPoints.push_back(cv::Point(iCX, iCY - (iSquareLenght/2)));
+	}
+
+	// disegno i link
+	cv::RNG rng(12345);
+	for (int v = 0; v < m_iN; v++)
+	{
+		for (int l = 0; l < m_pVariableNodesList[v]->GetNumLinks(); l++)
+		{
+			int iSrcNode = m_pVariableNodesList[v]->GetNodeID();
+			int iDstNode = m_pVariableNodesList[v]->GetLink(l)->GetNodeID();
+
+			cv::line(mCanvas, VNAttachPoints[iSrcNode-1], CNAttachPoints[iDstNode-1], cv::Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255)),2);
+		}
+	}
+
+	cv::imwrite("Tanner.bmp", mCanvas);
+	cv::imshow("Tanner Graph", mCanvas);
+}

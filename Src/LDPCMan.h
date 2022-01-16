@@ -6,6 +6,7 @@
 
 //class CAppCfg;
 class CMainFrame;
+class CTannerGraph;
 //
 // Classe gestore xppIPM
 //
@@ -54,8 +55,11 @@ public:
 	void					OnInitObj(wxCommandEvent& Event);
 	void					OnKeyboardInput(wxString strInput);
 	int						PostMainProcThreadEvent(int iEvent);
+	void					DrawGraph();
+	double					GetAWGNVar() { return m_dAWGNVar; }
+	void					SetAWGNVar(double dVal) { m_dAWGNVar = dVal; }
 
-	int						alist2cvMat(std::string strFileName, cv::Mat& pMat	);
+	std::pair<int, int>		alist2cvMat(std::string strFileName	);				// Torna N e M 
 
 protected:
 	void				__OnTimer(wxTimerEvent& Event);
@@ -67,7 +71,8 @@ protected:
 	DWORD				__MainProcessThread(void* pParam);
 	uint32_t			GetObjState(void);
 	int					__SetObjState(uint32_t ui32NewObjState);
-
+	void				__OnSimulate(wxCommandEvent& event);
+	void				__OnHSelected(wxCommandEvent& event);
 
 
 public:
@@ -82,6 +87,17 @@ protected:
 	wxCriticalSection		m_csObjStateMutex;						// Critical section per l'accesso esclusivo allo stato oggetto
 	std::list<wxString>		m_KeyboardInput;						// Lista dati inseriti da tastiera
 	wxCriticalSection		m_csKeyboardInputMutex;					// Critical section per l'accesso esclusivo a m_KeyboardInput
+
+	cv::Mat					m_ParityCheck;
+	CTannerGraph*			m_mainGraph;
+
+	wxString				m_strFileNameApppchk;
+	wxString				m_strFileNameAppGen;
+	wxString				m_strFileNameInput;
+	wxString				m_strFileNameEnc;
+	wxString				m_strFileNameRec;
+
+	double					m_dAWGNVar;
 
 	struct __MainProcessThread										// Dati thread principale di elaborazione
 	{

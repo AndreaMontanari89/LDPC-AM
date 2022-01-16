@@ -2,6 +2,7 @@
 #include "LDPC-AM.h"
 
 #include "MainFrm.h"
+#include "MainPanel.h"
 #include "Version.h"
 #include "LDPCMan.h"
 
@@ -17,8 +18,8 @@ CMainFrame::CMainFrame( const wxString& strTitle, const wxPoint& pos, const wxSi
 	//
 	m_pCLDPCMan = NULL;												// Punt. al gestore xppIPM
 
-//DF
-wxSize size1( 800, 600 );
+
+	wxSize size1( 1500, 900 );
 // Rifare con controllo sulla dimensione video come fatto da holechecker
 
 	long	lStyle = wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE;
@@ -84,8 +85,9 @@ void CMainFrame::__OnWindowCreate( wxWindowCreateEvent& Event )
 			pTopSizer = new wxBoxSizer( wxVERTICAL );
 			SetSizer( pTopSizer );
 
+
 			// Carica icona applicazione
-			SetIcon( wxICON( 128 ) );
+			SetIcon( wxIcon("IDR_APP_MAIN_ICON", wxBITMAP_TYPE_ICO_RESOURCE) );
 
 			// Creazione status bar
 			CreateStatusBar( 2 );
@@ -93,13 +95,11 @@ void CMainFrame::__OnWindowCreate( wxWindowCreateEvent& Event )
 			// Centra la finestra a video
 			CentreOnScreen();
 
-			//
-			// Creazione gestore xppIPM
-			//
 			m_pCLDPCMan = new CLDPCMan( this );
 			if ( ( iInitError = m_pCLDPCMan->InitObj() ) != 0 )
 				break;
 
+			pTopSizer->Add(new CMainPanel(this, m_pCLDPCMan), wxSizerFlags(1).Border().Expand());
 
 			// Funzione terminata correttamente
 			iInitError = 0;

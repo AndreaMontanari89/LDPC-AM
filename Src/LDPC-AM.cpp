@@ -55,6 +55,9 @@ bool CLDPCApp::OnInit( void )
 
 			pImageHandler = new wxJPEGHandler();
 			wxImage::AddHandler( pImageHandler );
+
+			pImageHandler = new wxPNGHandler;
+			wxImage::AddHandler(pImageHandler);
 		}
 
 		//

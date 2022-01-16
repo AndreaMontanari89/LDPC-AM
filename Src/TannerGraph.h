@@ -99,7 +99,7 @@ public:
 	};
 
 
-	void	Draw(cv::Mat mCanvas);
+	void	Draw();
 
 private:
 

@@ -88,13 +88,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_UNICODE;_WINDOWS;__WXMSW__;NOPCH;_CRT_SECURE_NO_WARNINGS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.0\build\x86-pc-win32\install\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.0\build\x86-pc-win32\install\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include;"C:\Program Files (x86)\Visual Leak Detector\include"</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.0\build\x86-pc-win32\install\x86\vc15\lib;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib;C:\Program Files\MATLAB\R2021b\extern\lib\win64\microsoft</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;version.lib;Shlwapi.lib;opencv_world450d.lib;wxmsw31ud_xrc.lib;wxmsw31ud_adv.lib;wxbase31ud_xml.lib;wxmsw31ud_html.lib;wxmsw31ud_core.lib;wxbase31ud_net.lib;wxbase31ud.lib;wxexpatd.lib;wxregexud.lib;wxzlibd.lib;wxtiffd.lib;wxpngd.lib;wxjpegd.lib;libMatlabEngine.lib;libMatlabDataArray.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.0\build\x86-pc-win32\install\x86\vc15\lib;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib;C:\Program Files\MATLAB\R2021b\extern\lib\win64\microsoft;C:\Program Files (x86)\Visual Leak Detector\lib\Win64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;version.lib;Shlwapi.lib;opencv_world450d.lib;wxmsw31ud_xrc.lib;wxmsw31ud_adv.lib;wxbase31ud_xml.lib;wxmsw31ud_html.lib;wxmsw31ud_core.lib;wxbase31ud_net.lib;wxbase31ud.lib;wxexpatd.lib;wxregexud.lib;wxzlibd.lib;wxtiffd.lib;wxpngd.lib;wxjpegd.lib;libMatlabEngine.lib;libMatlabDataArray.lib;vld.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include</AdditionalIncludeDirectories>
@@ -122,13 +122,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_UNICODE;_WINDOWS;__WXMSW__;NOPCH;_CRT_SECURE_NO_WARNINGS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include;C:\Develop\LDPC-AM\Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include;C:\Develop\LDPC-AM\Include;C:\Program Files (x86)\Visual Leak Detector\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\x64\vc15\lib;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_x64_lib;C:\Program Files\MATLAB\R2021b\extern\lib\win64\microsoft;C:\Develop\LDPC-AM\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;version.lib;Shlwapi.lib;opencv_world454d.lib;wxmsw31ud_xrc.lib;wxmsw31ud_adv.lib;wxbase31ud_xml.lib;wxmsw31ud_html.lib;wxmsw31ud_core.lib;wxbase31ud_net.lib;wxbase31ud.lib;wxexpatd.lib;wxregexud.lib;wxzlibd.lib;wxtiffd.lib;wxpngd.lib;wxjpegd.lib;LDPC-codes-Lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\x64\vc15\lib;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_x64_lib;C:\Program Files\MATLAB\R2021b\extern\lib\win64\microsoft;C:\Develop\LDPC-AM\Lib;C:\Program Files (x86)\Visual Leak Detector\lib\Win64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;comdlg32.lib;winspool.lib;winmm.lib;shell32.lib;comctl32.lib;ole32.lib;oleaut32.lib;uuid.lib;rpcrt4.lib;advapi32.lib;wsock32.lib;wininet.lib;version.lib;Shlwapi.lib;opencv_world454d.lib;wxmsw31ud_xrc.lib;wxmsw31ud_adv.lib;wxbase31ud_xml.lib;wxmsw31ud_html.lib;wxmsw31ud_core.lib;wxbase31ud_net.lib;wxbase31ud.lib;wxexpatd.lib;wxregexud.lib;wxzlibd.lib;wxtiffd.lib;wxpngd.lib;wxjpegd.lib;LDPC-codes-Lib.lib;vld.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include</AdditionalIncludeDirectories>
@@ -162,6 +162,8 @@
     <ClInclude Include="..\Src\LDPC-AM.h" />
     <ClInclude Include="..\Src\LDPCMan.h" />
     <ClInclude Include="..\Src\MainFrm.h" />
+    <ClInclude Include="..\Src\MainPanel.h" />
+    <ClInclude Include="..\Src\MainPanel_Base.h" />
     <ClInclude Include="..\Src\Resource.h" />
     <ClInclude Include="..\Src\stdafx.h" />
     <ClInclude Include="..\Src\TannerGraph.h" />
@@ -174,6 +176,8 @@
     <ClCompile Include="..\Src\LDPC-AM.cpp" />
     <ClCompile Include="..\Src\LDPCMan.cpp" />
     <ClCompile Include="..\Src\MainFrm.cpp" />
+    <ClCompile Include="..\Src\MainPanel.cpp" />
+    <ClCompile Include="..\Src\MainPanel_Base.cpp" />
     <ClCompile Include="..\Src\stdafx.cpp" />
     <ClCompile Include="..\Src\TannerGraph.cpp" />
     <ClCompile Include="..\Src\Utils.cpp" />
