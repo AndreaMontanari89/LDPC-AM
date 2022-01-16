@@ -20,3 +20,5 @@ Input per gestire massime iterazioni di decodifica
 	Menù con anche about esci etc ?
 	
 Parte del codice sistematico in ricezione è all'inizio non alla fine come speigato a lezione... invertirlo?
+
+Gestione di visualizzazione matrice H ( se è piccola resizarla, se è grande pure )
