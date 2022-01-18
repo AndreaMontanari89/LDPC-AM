@@ -47,9 +47,60 @@ BEGIN_EVENT_TABLE(CLDPCMan, wxEvtHandler)
 	EVT_COMMAND(wxID_ANY, wxEVT_BIN_IMG_SELECTED, CLDPCMan::__OnImgSelected)
 END_EVENT_TABLE()
 
+void CLDPCMan::DoLoadImg()
+{	
+	wxString	strApp;
+	int			idx = 0;
+	m_sasCurrWords.Clear();
+	m_ImgTX = cv::imread(m_strPathLoaded.ToStdString());
+	if (m_ImgTX.channels() > 1)
+		cv::cvtColor(m_ImgTX, m_ImgTX, cv::COLOR_RGB2GRAY);
+
+	m_szImgLoaded = cv::Size(m_ImgTX.cols, m_ImgTX.rows);
+
+	cv::threshold(m_ImgTX, m_ImgTX, 128, 255, cv::THRESH_BINARY);
+	for (int r = 0; r < m_ImgTX.rows; r++)
+		for (int c = 0; c < m_ImgTX.cols; c++)
+		{
+			if (m_ImgTX.at<uchar>(r, c) == 0)
+				strApp += "0";
+			else
+				strApp += "1";
+
+			idx++;
+			if ((idx % (m_ParityCheck.cols - m_ParityCheck.rows)) == 0)
+			{
+				m_sasCurrWords.push_back(strApp);
+				strApp.clear();
+			}
+		}
+
+	int l = strApp.Len();
+	if (l != 0)
+	{
+		m_iPadBitForImage = (m_ParityCheck.cols - m_ParityCheck.rows) - l;
+		for (int i = 0; i < (m_ParityCheck.cols - m_ParityCheck.rows) - l; i++)
+			strApp.Append("0");
+
+		m_sasCurrWords.push_back(strApp);
+	}	
+
+	::wxGetApp().GetMainWnd()->GetMainPanel()->m_asStringWords = m_sasCurrWords;
+	::wxGetApp().GetMainWnd()->GetMainPanel()->GenerationFinished();
+	m_bLoadedImg = true;
+}
+
 void CLDPCMan::__OnImgSelected(wxCommandEvent& event)
 {
-	//cv::Mat img = 
+	m_strPathLoaded = event.GetString().ToStdString();
+	::wxGetApp().GetMainWnd()->GetMainPanel()->StartGeneration();
+	m_pThread = new SimThread(this, 1);
+	if (m_pThread->Run() != wxTHREAD_NO_ERROR)
+	{
+		wxLogError("Can't create the thread!");
+		delete m_pThread;
+		m_pThread = NULL;
+	}	
 }
 
 void CLDPCMan::__OnHSelected(wxCommandEvent& event)
@@ -71,6 +122,9 @@ void CLDPCMan::DoSimulate()
 
 	wxString	strChannel;
 	double		dParam;
+
+	int			bits = m_sasCurrWords.size() * m_ParityCheck.cols;
+	int			errBits = 0;
 
 	if (m_iChannel == CH_AWGN) {
 		strChannel = "awgn"; dParam = m_dAWGNVar;
@@ -97,10 +151,11 @@ void CLDPCMan::DoSimulate()
 	m_sasCurrWordsEnc.Clear();
 	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
 		m_sasCurrWordsEnc.push_back(str);
-		
+
 	tf.Close();
 
-	transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)strChannel.ToStdString().c_str(), (char*)wxString::Format("%.1f",dParam).ToStdString().c_str());
+	srand(time(NULL));
+	transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)strChannel.ToStdString().c_str(), (char*)wxString::Format("%.1f", dParam).ToStdString().c_str());
 
 	tf.Open(m_strFileNameRec);
 	idx = 0;
@@ -115,8 +170,15 @@ void CLDPCMan::DoSimulate()
 	idx = 0;
 	m_sasCurrWordsDecode.clear();
 	m_decodeOK.clear();
+	m_iTentativi.clear();
 	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
 	{
+		if (m_bStopSim)
+		{
+			wxGetApp().GetMainWnd()->GetMainPanel()->SimulationFinished(bits, errBits);
+			return;
+		}
+
 		std::vector<double> channel;
 
 		if( m_iChannel == CH_AWGN )
@@ -126,24 +188,64 @@ void CLDPCMan::DoSimulate()
 			for (int c = 0; c < str.length(); c++)
 				channel.push_back(wxAtof(str[c]));
 
-		cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, 1000);				
+		int iAtt;
+		cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, m_iMaxTentativi, &iAtt);
+		m_iTentativi.push_back(iAtt);
 		m_sasCurrWordsDecode.push_back(cw.Right(m_ParityCheck.cols - m_ParityCheck.rows));
 
 		if ((cw.Right(m_ParityCheck.cols - m_ParityCheck.rows)) == (m_sasCurrWords[idx]))
 			m_decodeOK.push_back(true);
 		else
+		{
+			for (int ch = 0; ch < cw.Len(); ch++)
+			{
+				if (cw[ch] != m_sasCurrWordsEnc[m_sasCurrWordsDecode.size()-1][ch])
+					errBits++;
+			}
 			m_decodeOK.push_back(false);
+		}
 
 		idx++;
+
+		wxGetApp().GetMainWnd()->GetMainPanel()->SetInfo(wxString::Format("Decodificata parola %d\\%d con %d iterazioni", idx, (int)m_sasCurrWords.size(), iAtt ));
 	}
 	
-	wxGetApp().GetMainWnd()->GetMainPanel()->SimulationFinished();
+	wxGetApp().GetMainWnd()->GetMainPanel()->SimulationFinished( bits, errBits);
+
+
+	if (m_bLoadedImg)
+	{
+		m_ImgRX = cv::Mat::zeros( m_szImgLoaded, CV_8UC1 );
+		m_ImgRX = cv::Scalar(255);
+		int r = 0;
+		int c = 0;
+		for (int i = 0; i < m_sasCurrWordsDecode.size(); i++)
+		{
+			int l;
+			if (i == m_sasCurrWordsDecode.Count() - 1)
+				l = m_sasCurrWordsDecode[i].Len() - m_iPadBitForImage;
+			else
+				l = m_sasCurrWordsDecode[i].Len();
+
+			for (int ch = 0; ch < l; ch++)
+			{
+				if (m_sasCurrWordsDecode[i][ch] == '0') m_ImgRX.at<uchar>(r, c) = 0;
+				c++;
+				if ((c % m_szImgLoaded.width) == 0)
+				{
+					c = 0;
+					r++;
+				}
+			}
+		}
+	}
 
 }
 
 void CLDPCMan::__OnSimulate(wxCommandEvent& event)
 {
 	wxArrayString* sas = (wxArrayString*)event.GetClientData();
+	m_sasCurrWords.clear();
 	m_sasCurrWords = *sas;
 	delete sas;
 
@@ -298,15 +400,18 @@ int CLDPCMan::__InitObj(int iInitObjMode)
 		m_MainProcThread.m_hQuitThreadEvent = ::CreateEvent(NULL, false, false, NULL);
 
 		// Creazione thread principale di elaborazione
-		m_MainProcThread.m_hHandle = ::CreateThread(NULL,
-			0,
-			(LPTHREAD_START_ROUTINE)CLDPCMan::__MainProcessThreadStub,
-			(void*)this,
-			0,
-			&m_MainProcThread.m_dwThreadId);
+		//m_MainProcThread.m_hHandle = ::CreateThread(NULL,
+		//	0,
+		//	(LPTHREAD_START_ROUTINE)CLDPCMan::__MainProcessThreadStub,
+		//	(void*)this,
+		//	0,
+		//	&m_MainProcThread.m_dwThreadId);
 
 		m_mainGraph = nullptr;
 		m_iChannel = CH_AWGN;
+		m_iPadBitForImage = 0;
+		m_bLoadedImg = false;
+		m_bStopSim = false;
 
 		// Funzione terminata correttamente
 		iFuncRetVal = 0;
@@ -370,35 +475,34 @@ void CLDPCMan::__CleanupObj(int iCleanupObjMode)
 
 	do
 	{
+		//
+		// Termina il thread principale di elaborazione
+		//
+		if (m_MainProcThread.m_hHandle && m_MainProcThread.m_hQuitThreadEvent)
+		{
+			::SetEvent(m_MainProcThread.m_hQuitThreadEvent);
+			::WaitForSingleObject(m_MainProcThread.m_hHandle, INFINITE);
+			::CloseHandle(m_MainProcThread.m_hHandle);
+			::CloseHandle(m_MainProcThread.m_hQueuedEventEvent);
+			::CloseHandle(m_MainProcThread.m_hQuitThreadEvent);
 
-			//
-			// Termina il thread principale di elaborazione
-			//
-			if (m_MainProcThread.m_hHandle && m_MainProcThread.m_hQuitThreadEvent)
-			{
-				::SetEvent(m_MainProcThread.m_hQuitThreadEvent);
-				::WaitForSingleObject(m_MainProcThread.m_hHandle, INFINITE);
-				::CloseHandle(m_MainProcThread.m_hHandle);
-				::CloseHandle(m_MainProcThread.m_hQueuedEventEvent);
-				::CloseHandle(m_MainProcThread.m_hQuitThreadEvent);
+			m_MainProcThread.m_EventQueue.clear();					// Coda eventi da gestire
+		}
+		m_MainProcThread.m_hHandle = NULL;							// Handle thread
+		m_MainProcThread.m_dwThreadId = 0;							// Id thread
+		m_MainProcThread.m_hQueuedEventEvent = NULL;				// Evento 'evento in coda eventi'
+		m_MainProcThread.m_hQuitThreadEvent = NULL;					// Evento per terminare il thread
 
-				m_MainProcThread.m_EventQueue.clear();					// Coda eventi da gestire
-			}
-			m_MainProcThread.m_hHandle = NULL;							// Handle thread
-			m_MainProcThread.m_dwThreadId = 0;							// Id thread
-			m_MainProcThread.m_hQueuedEventEvent = NULL;				// Evento 'evento in coda eventi'
-			m_MainProcThread.m_hQuitThreadEvent = NULL;					// Evento per terminare il thread
+		//
+		// Lista dati inseriti da tastiera
+		//
+		m_KeyboardInput.clear();
 
-			//
-			// Lista dati inseriti da tastiera
-			//
-			m_KeyboardInput.clear();
-
-			if (m_mainGraph != nullptr)
-			{
-				delete m_mainGraph;
-				m_mainGraph = nullptr;
-			}
+		if (m_mainGraph != nullptr)
+		{
+			delete m_mainGraph;
+			m_mainGraph = nullptr;
+		}
 
 	} while (0);
 }
@@ -956,8 +1060,11 @@ void CLDPCMan::DrawGraph()
 
 wxThread::ExitCode SimThread::Entry()
 {
+	if( m_ibeahv == 0)
+		m_pHandler->DoSimulate();
 
-	m_pHandler->DoSimulate();
+	if (m_ibeahv == 1)
+		m_pHandler->DoLoadImg();
 	
 	return (wxThread::ExitCode)0;     // success
 }

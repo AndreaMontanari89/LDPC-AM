@@ -85,7 +85,7 @@ public:
 	void CheckNodeUpdate();
 	void VariableNodeUpdate();
 	bool Decision(cv::Mat pchk, wxString& cw);
-	wxString Decode(std::vector<double> channel_data, int iChType, double ch_par, cv::Mat pchk, int iAttempt);
+	wxString Decode(std::vector<double> channel_data, int iChType, double ch_par, cv::Mat pchk, int iAttempt, int* piAttemptUsed=NULL);
 
 	class TCheckNode : public CTannerNode
 	{

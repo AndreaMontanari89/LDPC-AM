@@ -19,7 +19,7 @@ CMainFrame::CMainFrame( const wxString& strTitle, const wxPoint& pos, const wxSi
 	m_pCLDPCMan = NULL;												// Punt. al gestore xppIPM
 
 
-	wxSize size1( 1500, 900 );
+	wxSize size1( 1500, 950 );
 // Rifare con controllo sulla dimensione video come fatto da holechecker
 
 	long	lStyle = wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE;
@@ -228,16 +228,16 @@ void CMainFrame::__OnIconized( wxIconizeEvent& Event )
 	// Normalmente questo evento non e' gestito, ma in questa applicazione invece di ridurre a icona
 	// la finestra lasciandone il pulsante sulla taskbar, la finestra viene nascosta e ne viene
 	// solo lasciata l'icona nella parte dx della taskbar
-	if ( Event.IsIconized() )
-		Show( false );
-	else
-		Show( true );
+	//if ( Event.IsIconized() )
+	//	Show( false );
+	//else
+	//	Show( true );
 
-	// Termina la gestione dell'evento
-	//
-	// If true, the event processing system continues searching for a further handler function for this event,
-	// even though it has been processed already in the current handler
-	Event.Skip( true );
+	//// Termina la gestione dell'evento
+	////
+	//// If true, the event processing system continues searching for a further handler function for this event,
+	//// even though it has been processed already in the current handler
+	//Event.Skip( true );
 }
 
 

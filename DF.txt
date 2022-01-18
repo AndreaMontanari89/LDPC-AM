@@ -25,8 +25,12 @@ Input per gestire massime iterazioni di decodifica
 Parte del codice sistematico in ricezione è all'inizio non alla fine come speigato a lezione... invertirlo
 *Gestione di visualizzazione matrice H ( se è piccola resizarla, se è grande pure )
 
-con matrice 12x9 codificando 10 elementi ne saltano fuori 30 dalla funzione encode
+*con matrice 12x9 codificando 10 elementi ne saltano fuori 30 dalla funzione encode
 
 *disgnare greafo di tanner con scrollbar
 
+IMPORTANTI
 label mentre simulo per capire a che punto sono
+*stop simulazione
+aggiornamento in tempo reale immagini
+*avere controllo sul numero massimo di iterazioni

@@ -56,10 +56,14 @@ void CTannerGraph::Initialization( std::vector<double> channel_data, int iChType
 		m_dLU.clear();
 
 		for (int i = 0; i < m_iN; i++)
-			if(iChType == 1 )
+			if (iChType == 1)
 				m_dLU.push_back(2 * channel_data[i] / ch_par);
 			else
-				m_dLU.push_back(pow((-1.0), channel_data[i])*log10((1.0- ch_par)/ ch_par));
+				if(channel_data[i] == 0.0 )
+					m_dLU.push_back(-log10((1.0- ch_par)/ ch_par));
+				else
+					m_dLU.push_back(log10((1.0 - ch_par) / ch_par));
+				
 
 		for (int c = 0; c < m_iM; c++)
 			for (int k = 0; k < m_pCheckNodesList[c]->GetNumLinks(); k++)				
@@ -167,14 +171,15 @@ bool CTannerGraph::Decision(cv::Mat pchk, wxString& cw)
 	for (int i = 0; i < res.cols; i++)
 		if (res.at<uchar>(0, i) % 2 == 0) res.at<uchar>(0, i) = 0;
 
-	if (cv::countNonZero(res) == 0)
+	// controllo che u*Ht = 0 ma anche che u  non sia la parola nulla
+	if (cv::countNonZero(res) == 0 && cv::countNonZero(word) != 0)
 		bRetVal = true;
 
 
 	return bRetVal;
 }
 
-wxString CTannerGraph::Decode(std::vector<double> channel_data, int iChType, double ch_par, cv::Mat pchk, int iAttempt)
+wxString CTannerGraph::Decode(std::vector<double> channel_data, int iChType, double ch_par, cv::Mat pchk, int iAttempt, int* piAttemptUsed)
 {
 	wxString	strRetVal = wxEmptyString;
 	int			iIteration = 0;
@@ -188,6 +193,9 @@ wxString CTannerGraph::Decode(std::vector<double> channel_data, int iChType, dou
 		iIteration++;
 
 	} while (!Decision(pchk, strRetVal ) && (iIteration<iAttempt) );
+
+	if (piAttemptUsed != NULL)
+		*piAttemptUsed = iIteration;
 
 	return strRetVal;
 }

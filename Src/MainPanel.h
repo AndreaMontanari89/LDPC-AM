@@ -48,11 +48,17 @@ protected:
 	void	__OnSpinAWGN(wxSpinDoubleEvent& event);
 	void	__OnSpinBSC(wxSpinDoubleEvent& event);
 	void	__OnViewH(wxCommandEvent& event);
+	void	__OnViewImgs(wxCommandEvent& event);
+	void	__OnStopSimulation(wxCommandEvent& event);
+	void	__OnSpnAttempt(wxSpinEvent& event);
+	void	__OnCleanRes(wxCommandEvent& event);
 
 public:
-	void	SimulationFinished();
+	void	SimulationFinished( int bits, int errbits);
 	void	GenerationFinished();
 	void	DoGenerate();
+	void	StartGeneration();
+	void	SetInfo(wxString info) { m_txtinfo->SetLabel(info); };
 
 	CLDPCMan*				m_pMan;
 	std::pair<int, int>		m_Hdims;

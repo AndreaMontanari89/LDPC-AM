@@ -36,6 +36,7 @@ CMainPanel::CMainPanel(wxWindow* pParent,
 	m_listBoxWord->InsertColumn(3, "Ricevuto da canale", wxLIST_FORMAT_LEFT, 300);
 	m_listBoxWord->InsertColumn(4, "Decodifica", wxLIST_FORMAT_LEFT, 300);
 	m_listBoxWord->InsertColumn(5, "", wxLIST_FORMAT_LEFT, 20);
+	m_listBoxWord->InsertColumn(6, "Iter.", wxLIST_FORMAT_LEFT, 60);
 
 	m_btnDrawTanner->Enable(false);
 	m_btnViewH->Enable(false);
@@ -57,11 +58,29 @@ CMainPanel::CMainPanel(wxWindow* pParent,
 	wxItemAttr ia;
 	ia.SetFont(wxFont(13, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString));
 	m_listBoxWord->SetHeaderAttr(ia);
+
+	m_pMan->m_iMaxTentativi = m_spnAttmpt->GetValue();
+
+	m_listResult->InsertColumn(0, "#", wxLIST_FORMAT_LEFT, 60);
+	m_listResult->InsertColumn(1, "BER", wxLIST_FORMAT_LEFT, 90);
+	m_listResult->InsertColumn(2, "Tipo canale", wxLIST_FORMAT_LEFT, 120);
+	m_listResult->InsertColumn(3, "Parametro", wxLIST_FORMAT_LEFT, 100);
+	m_listResult->InsertColumn(4, "k\\n", wxLIST_FORMAT_LEFT, 60);
+	m_listResult->InsertColumn(5, "k", wxLIST_FORMAT_LEFT, 60);
+	m_listResult->InsertColumn(6, "n", wxLIST_FORMAT_LEFT, 60);
+	m_listResult->InsertColumn(7, "m", wxLIST_FORMAT_LEFT, 60);
+	m_listResult->InsertColumn(8, "Bits", wxLIST_FORMAT_LEFT, 150);
+	m_listResult->SetHeaderAttr(ia);
 }
 
 
 CMainPanel::~CMainPanel()
 {
+}
+
+void CMainPanel::__OnCleanRes(wxCommandEvent& event)
+{
+	m_listResult->DeleteAllItems();
 }
 
 void CMainPanel::__OnChannel(wxCommandEvent& event)
@@ -114,7 +133,7 @@ void CMainPanel::DoGenerate()
 	{
 		for (int i = 0; i < iRep; i++)
 		{
-			for (int i = 0; i < m_Hdims.second; i++)
+			for (int i = 0; i < (m_Hdims.first-m_Hdims.second); i++)
 			{
 				LARGE_INTEGER liTime;
 				QueryPerformanceCounter(&liTime);
@@ -136,9 +155,9 @@ void CMainPanel::DoGenerate()
 	{
 		strWord = m_txtInsertWord->GetValue();
 		int l = strWord.Len();
-		if (strWord.Len() < m_Hdims.second)
+		if (strWord.Len() < (m_Hdims.first - m_Hdims.second))
 		{
-			for (int i = 0; i < m_Hdims.second - l; i++)
+			for (int i = 0; i < (m_Hdims.first - m_Hdims.second) - l; i++)
 				strWord.Prepend("0");
 		}
 
@@ -159,12 +178,15 @@ void CMainPanel::__OnInsertWord(wxCommandEvent& event)
 		m_pThread = NULL;
 	}
 
+	m_pMan->m_bLoadedImg = false;
 	m_gauge3->Pulse();
 }
 
 void CMainPanel::__OnPickBinImage(wxFileDirPickerEvent& event)
 {
-	//
+	wxCommandEvent evt(wxEVT_BIN_IMG_SELECTED);
+	evt.SetString(event.GetPath());
+	m_pMan->QueueEvent(evt.Clone());
 }
 
 void CMainPanel::__OnPickH(wxFileDirPickerEvent& event)
@@ -172,6 +194,9 @@ void CMainPanel::__OnPickH(wxFileDirPickerEvent& event)
 	m_Hdims = m_pMan->alist2cvMat( event.GetPath().ToStdString() );
 	if (m_Hdims.first > 0)
 	{
+		wxCommandEvent e;
+		__OnClearList(e);
+
 		m_txtN->SetLabel(wxString::Format("%d", m_Hdims.first));
 		m_txtM->SetLabel(wxString::Format("%d", m_Hdims.second));
 		m_txtK->SetLabel(wxString::Format("%d", m_Hdims.first - m_Hdims.second));
@@ -192,6 +217,11 @@ void CMainPanel::__OnPickH(wxFileDirPickerEvent& event)
 	}
 }
 
+void CMainPanel::__OnStopSimulation(wxCommandEvent& event)
+{ 
+	m_pMan->m_bStopSim = true;
+}
+
 void CMainPanel::__OnViewH(wxCommandEvent& event)
 {
 	int iDesiredWidth = 500;
@@ -205,13 +235,14 @@ void CMainPanel::__OnViewH(wxCommandEvent& event)
 void CMainPanel::__OnClearList(wxCommandEvent& event)
 {
 	m_listBoxWord->DeleteAllItems();
+	m_pMan->m_bLoadedImg = false;
 }
 
 void CMainPanel::__OnWordChar(wxKeyEvent& event)
 {
 	if (((event.GetKeyCode() == '1')|| 
 		(event.GetKeyCode() == '0'))
-		&& (m_txtInsertWord->GetValue().Len()< m_Hdims.second) )
+		&& (m_txtInsertWord->GetValue().Len() < (m_Hdims.first - m_Hdims.second)) )
 		event.Skip();
 
 	if (((event.GetKeyCode() == WXK_LEFT) ||
@@ -228,13 +259,15 @@ void CMainPanel::__OnStartSimulation(wxCommandEvent& event)
 	wxCommandEvent evt(wxEVT_START_SIMULATION);
 	wxArrayString* sasWord = new wxArrayString();
 
+	m_pMan->m_bStopSim = false;
+
 	for (int i = 0; i < m_listBoxWord->GetItemCount(); i++)
 		sasWord->push_back(m_listBoxWord->GetItemText(i, 1));
 
 	evt.SetClientData((void*)sasWord);
 	m_pMan->QueueEvent(evt.Clone());
 
-	m_pnlSimCfg->Enable(false);
+	m_bpAvviaSimulazione->Enable(false);
 	m_gauge2->Pulse();
 
 	m_pnlFiller->Enable(false);
@@ -260,6 +293,11 @@ void CMainPanel::__OnSpinBSC(wxSpinDoubleEvent& event)
 	__OnStartSimulation(evt);
 }
 
+void CMainPanel::StartGeneration()
+{
+	m_gauge3->Pulse();
+}
+
 void CMainPanel::GenerationFinished()
 {
 	for (int i = 0; i < m_asStringWords.Count(); i++)
@@ -277,22 +315,43 @@ void CMainPanel::GenerationFinished()
 	this->Refresh();
 }
 
-void CMainPanel::SimulationFinished()
+void CMainPanel::SimulationFinished(int bits, int errbits)
 { 
 	for (int i = 0; i < m_pMan->m_sasCurrWords.size(); i++)
 	{
-		m_listBoxWord->SetItem(i, 2, m_pMan->m_sasCurrWordsEnc[i]);
-		m_listBoxWord->SetItem(i, 3, m_pMan->m_sasCurrWordsTx[i]);
-		m_listBoxWord->SetItem(i, 4, m_pMan->m_sasCurrWordsDecode[i]);
-		m_listBoxWord->SetItem(i, 5, "", (m_pMan->m_decodeOK[i]) ? 0:1);
+		if( i< m_pMan->m_sasCurrWordsEnc.size())
+			m_listBoxWord->SetItem(i, 2, m_pMan->m_sasCurrWordsEnc[i]);
+		if (i < m_pMan->m_sasCurrWordsTx.size())
+			m_listBoxWord->SetItem(i, 3, m_pMan->m_sasCurrWordsTx[i]);
+		if (i < m_pMan->m_sasCurrWordsDecode.size())
+			m_listBoxWord->SetItem(i, 4, m_pMan->m_sasCurrWordsDecode[i]);
+		if (i < m_pMan->m_decodeOK.size())
+			m_listBoxWord->SetItem(i, 5, "", (m_pMan->m_decodeOK[i]) ? 0:1);
+		if (i < m_pMan->m_iTentativi.size())
+			m_listBoxWord->SetItem(i, 6, wxString::Format("%d", m_pMan->m_iTentativi[i]));
 	}
 
 	m_gauge2->SetValue(0); 
-	m_pnlSimCfg->Enable(true);
+	m_bpAvviaSimulazione->Enable(true);
 
 	m_pnlFiller->Enable(true);
 	m_pnlChannel->Enable(true);
 	m_pnlMatriceParita->Enable(true);
+
+	wxString channel = m_rdAWGN->GetValue() ? "AWGN" : "BSC";
+	wxString channel_par = m_rdAWGN->GetValue() ? wxString::Format("%.4f", m_spnVarAWGN->GetValue()) : wxString::Format("%.4f", m_spnPeBSC->GetValue());
+	int iItemIdx = m_listResult->GetItemCount();
+	m_listResult->InsertItem(iItemIdx, "", -1);
+	m_listResult->SetItem(iItemIdx, 0, wxString::Format("%d", m_listResult->GetItemCount()));
+	m_listResult->SetItem(iItemIdx, 1, wxString::Format("%.2e", (double)errbits/(double)bits));
+	m_listResult->SetItem(iItemIdx, 2, channel );
+	m_listResult->SetItem(iItemIdx, 3, channel_par );
+	m_listResult->SetItem(iItemIdx, 4, wxString::Format("%.2f", (double)(m_pMan->GetH().cols - m_pMan->GetH().rows)/(double)m_pMan->GetH().cols) );
+	m_listResult->SetItem(iItemIdx, 5, wxString::Format("%d", m_pMan->GetH().cols - m_pMan->GetH().rows));
+	m_listResult->SetItem(iItemIdx, 6, wxString::Format("%d", m_pMan->GetH().cols ));
+	m_listResult->SetItem(iItemIdx, 7, wxString::Format("%d", m_pMan->GetH().rows ));
+	m_listResult->SetItem(iItemIdx, 8, wxString::Format("%d", bits ));
+
 
 	this->Layout(); 
 	this->Refresh();
@@ -302,4 +361,26 @@ wxThread::ExitCode CMainPanel::GenThread::Entry()
 {
 	m_pHandler->DoGenerate();
 	return (wxThread::ExitCode)0;     // success
+}
+
+void CMainPanel::__OnViewImgs(wxCommandEvent& event)
+{
+	if((m_pMan->m_ImgTX.cols> 0) && (m_pMan->m_ImgRX.cols > 0))
+	{
+		int iDesiredWidth = 500;
+		double dScale = m_pMan->m_ImgTX.cols / (double)iDesiredWidth;
+
+		cv::resize(m_pMan->m_ImgTX, m_pMan->m_ImgTX, cv::Size(), 1.0 / dScale, 1.0 / dScale, cv::INTER_NEAREST);
+		cv::imshow("Immagine trasmessa", m_pMan->m_ImgTX);
+
+		dScale = m_pMan->m_ImgRX.cols / (double)iDesiredWidth;
+		cv::resize(m_pMan->m_ImgRX, m_pMan->m_ImgRX, cv::Size(), 1.0 / dScale, 1.0 / dScale, cv::INTER_NEAREST);
+		cv::imshow("Immagine ricevuta", m_pMan->m_ImgRX);
+	}
+
+}
+
+void CMainPanel::__OnSpnAttempt(wxSpinEvent& event)
+{
+	m_pMan->m_iMaxTentativi = m_spnAttmpt->GetValue();
 }

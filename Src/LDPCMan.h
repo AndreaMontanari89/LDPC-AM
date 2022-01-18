@@ -11,15 +11,17 @@ class CTannerGraph;
 class SimThread : public wxThread
 {
 public:
-	SimThread(CLDPCMan* handler)
+	SimThread(CLDPCMan* handler, int beahv = 0)
 		: wxThread(wxTHREAD_DETACHED)
 	{
 		m_pHandler = handler;
+		m_ibeahv = beahv;
 	}
 	~SimThread() {};
 protected:
 	virtual ExitCode Entry();
 	CLDPCMan* m_pHandler;
+	int m_ibeahv;
 };
 //
 // Classe gestore xppIPM
@@ -84,6 +86,7 @@ public:
 	void					SetChannel(__Channel ch) { m_iChannel=ch; }
 
 	void					DoSimulate();
+	void					DoLoadImg();
 	std::pair<int, int>		alist2cvMat(std::string strFileName	);				// Torna N e M 
 
 protected:
@@ -100,13 +103,24 @@ protected:
 	void				__OnHSelected(wxCommandEvent& event);
 	void				__OnImgSelected(wxCommandEvent& event);
 
-
 public:
 	wxArrayString			m_sasCurrWords;
 	wxArrayString			m_sasCurrWordsEnc;
 	wxArrayString			m_sasCurrWordsTx;
 	wxArrayString			m_sasCurrWordsDecode;
 	std::vector<bool>		m_decodeOK;
+	std::vector<int>		m_iTentativi;
+	int						m_iMaxTentativi;
+
+	int						m_iPadBitForImage;
+	bool					m_bLoadedImg;
+	cv::Size				m_szImgLoaded;
+	wxString				m_strPathLoaded;
+	cv::Mat					m_ImgTX;
+	cv::Mat					m_ImgRX;
+
+	bool					m_bStopSim;
+
 	//
 	// Variabili
 	//
