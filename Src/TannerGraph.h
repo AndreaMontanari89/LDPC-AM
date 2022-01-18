@@ -81,11 +81,11 @@ public:
 	void CreateLink( int iVNID, int iCNID );
 
 	// Inizializzazione dei nodi variabile
-	void Initialization(std::vector<double> channel_data, double sigma_2);
+	void Initialization(std::vector<double> channel_data, int iChType, double ch_par);
 	void CheckNodeUpdate();
 	void VariableNodeUpdate();
 	bool Decision(cv::Mat pchk, wxString& cw);
-	wxString Decode(std::vector<double> channel_data, double sigma_2, cv::Mat pchk, int iAttempt);
+	wxString Decode(std::vector<double> channel_data, int iChType, double ch_par, cv::Mat pchk, int iAttempt);
 
 	class TCheckNode : public CTannerNode
 	{
@@ -100,6 +100,9 @@ public:
 
 
 	void	Draw();
+
+private:
+	void	__CleanUpNode();
 
 private:
 

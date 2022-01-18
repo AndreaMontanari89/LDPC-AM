@@ -27,6 +27,7 @@
 #include <wx/radiobut.h>
 #include <wx/spinctrl.h>
 #include <wx/statbmp.h>
+#include <wx/gauge.h>
 #include <wx/listctrl.h>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -77,14 +78,20 @@ class CMainPanel_Base : public wxPanel
 		wxStaticText* m_staticText1411;
 		wxSpinCtrl* m_spnRep;
 		wxStaticLine* m_staticline71;
+		wxPanel* m_pnlCtrlGen;
 		wxButton* m_btnIsertWord;
 		wxButton* m_button31;
+		wxPanel* m_pnlLoadGen;
+		wxGauge* m_gauge3;
 		wxStaticLine* m_staticline711;
 		wxStaticText* m_staticText51;
 		wxFilePickerCtrl* m_filePicker2;
 		wxStaticLine* m_staticline6;
 		wxPanel* m_pnlSim;
+		wxPanel* m_pnlCfg;
+		wxPanel* m_pnlSimCfg;
 		wxButton* m_bpAvviaSimulazione;
+		wxGauge* m_gauge2;
 		wxListCtrl* m_listBoxWord;
 		wxStaticLine* m_staticline62;
 		wxPanel* m_pnlRes;
@@ -92,12 +99,15 @@ class CMainPanel_Base : public wxPanel
 		// Virtual event handlers, override them in your derived class
 		virtual void __OnPickH( wxFileDirPickerEvent& event ) { event.Skip(); }
 		virtual void __OnDrawTanner( wxCommandEvent& event ) { event.Skip(); }
+		virtual void __OnViewH( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnChannel( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnSpinAWGN( wxSpinDoubleEvent& event ) { event.Skip(); }
+		virtual void __OnSpinBSC( wxSpinDoubleEvent& event ) { event.Skip(); }
 		virtual void __OnChangeSimulation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnWordChar( wxKeyEvent& event ) { event.Skip(); }
 		virtual void __OnInsertWord( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnClearList( wxCommandEvent& event ) { event.Skip(); }
+		virtual void __OnPickBinImage( wxFileDirPickerEvent& event ) { event.Skip(); }
 		virtual void __OnStartSimulation( wxCommandEvent& event ) { event.Skip(); }
 
 

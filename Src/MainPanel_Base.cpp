@@ -185,8 +185,8 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 
 	bSizer12->Add( m_staticText25, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_spnVarAWGN = new wxSpinCtrlDouble( m_pnlChannel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 0, 10, 0.000000, 0.1 );
-	m_spnVarAWGN->SetDigits( 1 );
+	m_spnVarAWGN = new wxSpinCtrlDouble( m_pnlChannel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 0, 10, 0.000000, 0.01 );
+	m_spnVarAWGN->SetDigits( 2 );
 	bSizer12->Add( m_spnVarAWGN, 0, wxALL, 5 );
 
 
@@ -215,7 +215,7 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 
 	bSizer121->Add( m_staticText251, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-	m_spnPeBSC = new wxSpinCtrlDouble( m_pnlChannel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 0, 1, 0.100000, 0.1 );
+	m_spnPeBSC = new wxSpinCtrlDouble( m_pnlChannel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 0, 1, 0.000000, 0.1 );
 	m_spnPeBSC->SetDigits( 4 );
 	bSizer121->Add( m_spnPeBSC, 0, wxALL, 5 );
 
@@ -302,21 +302,39 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_staticline71 = new wxStaticLine( m_pnlFiller, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	bSizer141->Add( m_staticline71, 0, wxEXPAND | wxALL, 5 );
 
+	m_pnlCtrlGen = new wxPanel( m_pnlFiller, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer241;
 	bSizer241 = new wxBoxSizer( wxHORIZONTAL );
 
-	m_btnIsertWord = new wxButton( m_pnlFiller, wxID_ANY, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_btnIsertWord = new wxButton( m_pnlCtrlGen, wxID_ANY, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_btnIsertWord->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
 	bSizer241->Add( m_btnIsertWord, 0, wxALL, 5 );
 
-	m_button31 = new wxButton( m_pnlFiller, wxID_ANY, wxT("Pulisci"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_button31 = new wxButton( m_pnlCtrlGen, wxID_ANY, wxT("Pulisci"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_button31->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
 	bSizer241->Add( m_button31, 0, wxALL, 5 );
 
 
-	bSizer141->Add( bSizer241, 0, wxEXPAND, 5 );
+	m_pnlCtrlGen->SetSizer( bSizer241 );
+	m_pnlCtrlGen->Layout();
+	bSizer241->Fit( m_pnlCtrlGen );
+	bSizer141->Add( m_pnlCtrlGen, 0, wxEXPAND | wxALL, 5 );
+
+	m_pnlLoadGen = new wxPanel( m_pnlFiller, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer22;
+	bSizer22 = new wxBoxSizer( wxVERTICAL );
+
+	m_gauge3 = new wxGauge( m_pnlLoadGen, wxID_ANY, 100, wxDefaultPosition, wxSize( -1,-1 ), wxGA_HORIZONTAL );
+	m_gauge3->SetValue( 0 );
+	bSizer22->Add( m_gauge3, 1, wxALL|wxEXPAND, 5 );
+
+
+	m_pnlLoadGen->SetSizer( bSizer22 );
+	m_pnlLoadGen->Layout();
+	bSizer22->Fit( m_pnlLoadGen );
+	bSizer141->Add( m_pnlLoadGen, 1, wxEXPAND | wxALL, 5 );
 
 	m_staticline711 = new wxStaticLine( m_pnlFiller, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	bSizer141->Add( m_staticline711, 0, wxEXPAND | wxALL, 5 );
@@ -360,14 +378,32 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 
 	bSizer25->Add( m_lblMatTitle1, 0, wxALL, 5 );
 
-	wxBoxSizer* bSizer56;
-	bSizer56 = new wxBoxSizer( wxVERTICAL );
+	m_pnlCfg = new wxPanel( m_pnlSim, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer26;
+	bSizer26 = new wxBoxSizer( wxVERTICAL );
+
+	m_pnlSimCfg = new wxPanel( m_pnlCfg, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer20;
+	bSizer20 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_bpAvviaSimulazione = new wxButton( m_pnlSimCfg, wxID_ANY, wxT("Avvia"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer20->Add( m_bpAvviaSimulazione, 0, wxALL, 5 );
 
 
-	bSizer25->Add( bSizer56, 1, wxEXPAND, 5 );
+	m_pnlSimCfg->SetSizer( bSizer20 );
+	m_pnlSimCfg->Layout();
+	bSizer20->Fit( m_pnlSimCfg );
+	bSizer26->Add( m_pnlSimCfg, 1, wxEXPAND | wxALL, 0 );
 
-	m_bpAvviaSimulazione = new wxButton( m_pnlSim, wxID_ANY, wxT("Avvia"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer25->Add( m_bpAvviaSimulazione, 0, wxALL, 5 );
+	m_gauge2 = new wxGauge( m_pnlCfg, wxID_ANY, 100, wxDefaultPosition, wxSize( -1,-1 ), wxGA_HORIZONTAL );
+	m_gauge2->SetValue( 0 );
+	bSizer26->Add( m_gauge2, 0, wxALL|wxEXPAND, 5 );
+
+
+	m_pnlCfg->SetSizer( bSizer26 );
+	m_pnlCfg->Layout();
+	bSizer26->Fit( m_pnlCfg );
+	bSizer25->Add( m_pnlCfg, 0, wxEXPAND | wxALL, 5 );
 
 	m_listBoxWord = new wxListCtrl( m_pnlSim, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT );
 	bSizer25->Add( m_listBoxWord, 1, wxALL|wxEXPAND, 5 );
@@ -413,14 +449,17 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	// Connect Events
 	m_filePicker1->Connect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickH ), NULL, this );
 	m_btnDrawTanner->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnDrawTanner ), NULL, this );
+	m_btnViewH->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewH ), NULL, this );
 	m_rdAWGN->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
 	m_spnVarAWGN->Connect( wxEVT_COMMAND_SPINCTRLDOUBLE_UPDATED, wxSpinDoubleEventHandler( CMainPanel_Base::__OnSpinAWGN ), NULL, this );
 	m_rdBSC->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
+	m_spnPeBSC->Connect( wxEVT_COMMAND_SPINCTRLDOUBLE_UPDATED, wxSpinDoubleEventHandler( CMainPanel_Base::__OnSpinBSC ), NULL, this );
 	m_rdRandom->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChangeSimulation ), NULL, this );
 	m_rdInsertWord->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChangeSimulation ), NULL, this );
 	m_txtInsertWord->Connect( wxEVT_CHAR, wxKeyEventHandler( CMainPanel_Base::__OnWordChar ), NULL, this );
 	m_btnIsertWord->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnInsertWord ), NULL, this );
 	m_button31->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnClearList ), NULL, this );
+	m_filePicker2->Connect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickBinImage ), NULL, this );
 	m_bpAvviaSimulazione->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStartSimulation ), NULL, this );
 }
 
@@ -429,14 +468,17 @@ CMainPanel_Base::~CMainPanel_Base()
 	// Disconnect Events
 	m_filePicker1->Disconnect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickH ), NULL, this );
 	m_btnDrawTanner->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnDrawTanner ), NULL, this );
+	m_btnViewH->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewH ), NULL, this );
 	m_rdAWGN->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
 	m_spnVarAWGN->Disconnect( wxEVT_COMMAND_SPINCTRLDOUBLE_UPDATED, wxSpinDoubleEventHandler( CMainPanel_Base::__OnSpinAWGN ), NULL, this );
 	m_rdBSC->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
+	m_spnPeBSC->Disconnect( wxEVT_COMMAND_SPINCTRLDOUBLE_UPDATED, wxSpinDoubleEventHandler( CMainPanel_Base::__OnSpinBSC ), NULL, this );
 	m_rdRandom->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChangeSimulation ), NULL, this );
 	m_rdInsertWord->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChangeSimulation ), NULL, this );
 	m_txtInsertWord->Disconnect( wxEVT_CHAR, wxKeyEventHandler( CMainPanel_Base::__OnWordChar ), NULL, this );
 	m_btnIsertWord->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnInsertWord ), NULL, this );
 	m_button31->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnClearList ), NULL, this );
+	m_filePicker2->Disconnect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickBinImage ), NULL, this );
 	m_bpAvviaSimulazione->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStartSimulation ), NULL, this );
 
 }

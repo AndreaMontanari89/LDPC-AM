@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_UNICODE;_WINDOWS;__WXMSW__;NOPCH;_CRT_SECURE_NO_WARNINGS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include;C:\Develop\LDPC-AM\Include;C:\Program Files (x86)\Visual Leak Detector\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(EXT_LIBS_PATH)\xplat\OpenCV-4.5.4\build\include;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\lib\vc15_lib\mswud;$(EXT_LIBS_PATH)\xplat\wxWidgets-3.1.1\include;$(EXT_LIBS_PATH)\xplat\rapidjson_67fac85\include;C:\Program Files\MATLAB\R2021b\extern\include;C:\Develop\LDPC-AM\Include;C:\Program Files (x86)\Visual Leak Detector\include;$(EXT_LIBS_PATH)\i686-win32\cv-plot-1.2.2\CvPlot\inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

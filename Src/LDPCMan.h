@@ -7,6 +7,20 @@
 //class CAppCfg;
 class CMainFrame;
 class CTannerGraph;
+
+class SimThread : public wxThread
+{
+public:
+	SimThread(CLDPCMan* handler)
+		: wxThread(wxTHREAD_DETACHED)
+	{
+		m_pHandler = handler;
+	}
+	~SimThread() {};
+protected:
+	virtual ExitCode Entry();
+	CLDPCMan* m_pHandler;
+};
 //
 // Classe gestore xppIPM
 //
@@ -45,6 +59,12 @@ public:
 		MPTEQI_CheckScan,											// Controllo scansioni
 	};
 
+	enum __Channel
+	{
+		CH_AWGN=1,
+		CH_BSC,
+	};
+
 	//
 	// Funzioni
 	//
@@ -58,7 +78,12 @@ public:
 	void					DrawGraph();
 	double					GetAWGNVar() { return m_dAWGNVar; }
 	void					SetAWGNVar(double dVal) { m_dAWGNVar = dVal; }
+	double					GetBSCPe() { return m_dBSCPe; }
+	void					SetBSCPe(double dVal) { m_dBSCPe = dVal; }
+	cv::Mat					GetH() { return m_ParityCheck; }
+	void					SetChannel(__Channel ch) { m_iChannel=ch; }
 
+	void					DoSimulate();
 	std::pair<int, int>		alist2cvMat(std::string strFileName	);				// Torna N e M 
 
 protected:
@@ -73,10 +98,15 @@ protected:
 	int					__SetObjState(uint32_t ui32NewObjState);
 	void				__OnSimulate(wxCommandEvent& event);
 	void				__OnHSelected(wxCommandEvent& event);
+	void				__OnImgSelected(wxCommandEvent& event);
 
 
 public:
-
+	wxArrayString			m_sasCurrWords;
+	wxArrayString			m_sasCurrWordsEnc;
+	wxArrayString			m_sasCurrWordsTx;
+	wxArrayString			m_sasCurrWordsDecode;
+	std::vector<bool>		m_decodeOK;
 	//
 	// Variabili
 	//
@@ -98,6 +128,12 @@ protected:
 	wxString				m_strFileNameRec;
 
 	double					m_dAWGNVar;
+	double					m_dBSCPe;
+
+	int						m_iChannel;
+	
+
+	SimThread*				m_pThread;
 
 	struct __MainProcessThread										// Dati thread principale di elaborazione
 	{

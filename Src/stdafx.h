@@ -59,6 +59,9 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+#define CVPLOT_HEADER_ONLY 1
+#include <CvPlot/CvPlot.h>
+
 #ifdef MATLAB
 	#include "MatlabEngine.hpp"
 	#include "MatlabDataArray.hpp"

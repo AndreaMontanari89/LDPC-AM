@@ -99,7 +99,8 @@ void CMainFrame::__OnWindowCreate( wxWindowCreateEvent& Event )
 			if ( ( iInitError = m_pCLDPCMan->InitObj() ) != 0 )
 				break;
 
-			pTopSizer->Add(new CMainPanel(this, m_pCLDPCMan), wxSizerFlags(1).Border().Expand());
+			m_pMainPanel = new CMainPanel(this, m_pCLDPCMan);
+			pTopSizer->Add(m_pMainPanel, wxSizerFlags(1).Border().Expand());
 
 			// Funzione terminata correttamente
 			iInitError = 0;

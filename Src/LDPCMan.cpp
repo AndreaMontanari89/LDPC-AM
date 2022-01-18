@@ -8,6 +8,7 @@
 #include "Utils.h"
 #include "TannerGraph.h"
 #include "LDPC-codes-Lib.h"
+#include "MainPanel.h"
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,7 +44,13 @@ BEGIN_EVENT_TABLE(CLDPCMan, wxEvtHandler)
 	EVT_COMMAND(wxID_ANY, wxEVT_APP_INIT_LDPC_OBJ, CLDPCMan::OnInitObj)
 	EVT_COMMAND(wxID_ANY, wxEVT_START_SIMULATION, CLDPCMan::__OnSimulate)	
 	EVT_COMMAND(wxID_ANY, wxEVT_H_SELECTED, CLDPCMan::__OnHSelected)
+	EVT_COMMAND(wxID_ANY, wxEVT_BIN_IMG_SELECTED, CLDPCMan::__OnImgSelected)
 END_EVENT_TABLE()
+
+void CLDPCMan::__OnImgSelected(wxCommandEvent& event)
+{
+	//cv::Mat img = 
+}
 
 void CLDPCMan::__OnHSelected(wxCommandEvent& event)
 {
@@ -56,12 +63,21 @@ void CLDPCMan::__OnHSelected(wxCommandEvent& event)
 
 }
 
-void CLDPCMan::__OnSimulate(wxCommandEvent& event)
+void CLDPCMan::DoSimulate()
 {
-	wxListCtrl* lst = (wxListCtrl*)event.GetClientData();
 	m_strFileNameInput = m_strFileNameApppchk.BeforeLast('\\') + "\\input.txt";
 	m_strFileNameEnc = m_strFileNameApppchk.BeforeLast('\\') + "\\Encode.enc";
 	m_strFileNameRec = m_strFileNameApppchk.BeforeLast('\\') + "\\Rec.rec";
+
+	wxString	strChannel;
+	double		dParam;
+
+	if (m_iChannel == CH_AWGN) {
+		strChannel = "awgn"; dParam = m_dAWGNVar;
+	}
+	if (m_iChannel == CH_BSC) {
+		strChannel = "bsc"; dParam = m_dBSCPe;
+	}
 
 	if (wxFile::Exists(m_strFileNameInput))
 		wxRemove(m_strFileNameInput);
@@ -69,8 +85,8 @@ void CLDPCMan::__OnSimulate(wxCommandEvent& event)
 	wxTextFile	tf(m_strFileNameInput);
 	tf.Create();
 
-	for (int i = 0; i < lst->GetItemCount(); i++)
-		tf.AddLine(lst->GetItemText(i, 1));
+	for (int i = 0; i < m_sasCurrWords.size(); i++)
+		tf.AddLine(m_sasCurrWords[i]);
 	tf.Write();
 	tf.Close();
 
@@ -78,28 +94,67 @@ void CLDPCMan::__OnSimulate(wxCommandEvent& event)
 	
 	tf.Open(m_strFileNameEnc);
 	int idx = 0;
+	m_sasCurrWordsEnc.Clear();
 	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
-		lst->SetItem(idx++, 2, str);
+		m_sasCurrWordsEnc.push_back(str);
+		
 	tf.Close();
 
-	transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)"awgn", (char*)wxString::Format("%.1f",m_dAWGNVar).ToStdString().c_str());
+	transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)strChannel.ToStdString().c_str(), (char*)wxString::Format("%.1f",dParam).ToStdString().c_str());
 
 	tf.Open(m_strFileNameRec);
 	idx = 0;
+	m_sasCurrWordsTx.clear();
 	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
-		lst->SetItem(idx++, 3, str);
+		m_sasCurrWordsTx.push_back(str);
 	tf.Close();
 
 
 	tf.Open(m_strFileNameRec);
 	wxString	cw;
 	idx = 0;
+	m_sasCurrWordsDecode.clear();
+	m_decodeOK.clear();
 	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
 	{
-		std::vector<double> channel = DoubleVectorFromString(str);
-		cw = m_mainGraph->Decode(channel, m_dAWGNVar, m_ParityCheck, 1000);
-		lst->SetItem(idx++, 4, cw.Right(m_ParityCheck.cols - m_ParityCheck.rows));
+		std::vector<double> channel;
+
+		if( m_iChannel == CH_AWGN )
+			channel = DoubleVectorFromString(str);
+
+		if (m_iChannel == CH_BSC)
+			for (int c = 0; c < str.length(); c++)
+				channel.push_back(wxAtof(str[c]));
+
+		cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, 1000);				
+		m_sasCurrWordsDecode.push_back(cw.Right(m_ParityCheck.cols - m_ParityCheck.rows));
+
+		if ((cw.Right(m_ParityCheck.cols - m_ParityCheck.rows)) == (m_sasCurrWords[idx]))
+			m_decodeOK.push_back(true);
+		else
+			m_decodeOK.push_back(false);
+
+		idx++;
 	}
+	
+	wxGetApp().GetMainWnd()->GetMainPanel()->SimulationFinished();
+
+}
+
+void CLDPCMan::__OnSimulate(wxCommandEvent& event)
+{
+	wxArrayString* sas = (wxArrayString*)event.GetClientData();
+	m_sasCurrWords = *sas;
+	delete sas;
+
+	m_pThread = new SimThread(this);
+	if (m_pThread->Run() != wxTHREAD_NO_ERROR)
+	{
+		wxLogError("Can't create the thread!");
+		delete m_pThread;
+		m_pThread = NULL;
+	}
+
 }
 //
 // Funzione:
@@ -225,6 +280,7 @@ int CLDPCMan::__InitObj(int iInitObjMode)
 		m_MainProcThread.m_hQuitThreadEvent = NULL;					// Evento per terminare il thread
 		m_MainProcThread.m_EventQueue.clear();						// Coda eventi da gestire
 
+
 		//
 		// Inizializz. variabili varie
 		//
@@ -250,6 +306,7 @@ int CLDPCMan::__InitObj(int iInitObjMode)
 			&m_MainProcThread.m_dwThreadId);
 
 		m_mainGraph = nullptr;
+		m_iChannel = CH_AWGN;
 
 		// Funzione terminata correttamente
 		iFuncRetVal = 0;
@@ -314,33 +371,34 @@ void CLDPCMan::__CleanupObj(int iCleanupObjMode)
 	do
 	{
 
-			// Blocco try catch per evitare runtime error che farebbe apparire dialog e blocca il Restart.
-			// Causo volutamente un crash che provoca il restart
 			//
-	
+			// Termina il thread principale di elaborazione
+			//
+			if (m_MainProcThread.m_hHandle && m_MainProcThread.m_hQuitThreadEvent)
+			{
+				::SetEvent(m_MainProcThread.m_hQuitThreadEvent);
+				::WaitForSingleObject(m_MainProcThread.m_hHandle, INFINITE);
+				::CloseHandle(m_MainProcThread.m_hHandle);
+				::CloseHandle(m_MainProcThread.m_hQueuedEventEvent);
+				::CloseHandle(m_MainProcThread.m_hQuitThreadEvent);
 
-				//
-				// Termina il thread principale di elaborazione
-				//
-				if (m_MainProcThread.m_hHandle && m_MainProcThread.m_hQuitThreadEvent)
-				{
-					::SetEvent(m_MainProcThread.m_hQuitThreadEvent);
-					::WaitForSingleObject(m_MainProcThread.m_hHandle, INFINITE);
-					::CloseHandle(m_MainProcThread.m_hHandle);
-					::CloseHandle(m_MainProcThread.m_hQueuedEventEvent);
-					::CloseHandle(m_MainProcThread.m_hQuitThreadEvent);
+				m_MainProcThread.m_EventQueue.clear();					// Coda eventi da gestire
+			}
+			m_MainProcThread.m_hHandle = NULL;							// Handle thread
+			m_MainProcThread.m_dwThreadId = 0;							// Id thread
+			m_MainProcThread.m_hQueuedEventEvent = NULL;				// Evento 'evento in coda eventi'
+			m_MainProcThread.m_hQuitThreadEvent = NULL;					// Evento per terminare il thread
 
-					m_MainProcThread.m_EventQueue.clear();					// Coda eventi da gestire
-				}
-				m_MainProcThread.m_hHandle = NULL;							// Handle thread
-				m_MainProcThread.m_dwThreadId = 0;							// Id thread
-				m_MainProcThread.m_hQueuedEventEvent = NULL;				// Evento 'evento in coda eventi'
-				m_MainProcThread.m_hQuitThreadEvent = NULL;					// Evento per terminare il thread
+			//
+			// Lista dati inseriti da tastiera
+			//
+			m_KeyboardInput.clear();
 
-				//
-				// Lista dati inseriti da tastiera
-				//
-				m_KeyboardInput.clear();
+			if (m_mainGraph != nullptr)
+			{
+				delete m_mainGraph;
+				m_mainGraph = nullptr;
+			}
 
 	} while (0);
 }
@@ -823,6 +881,9 @@ std::pair<int, int>	CLDPCMan::alist2cvMat(std::string strFileName)
 		}
 
 		// Costriusico il grafo di tanner
+		if (m_mainGraph != nullptr)
+			delete m_mainGraph;
+
 		m_mainGraph = new CTannerGraph(m_ParityCheck);
 
 #ifdef MATLAB
@@ -891,4 +952,12 @@ void CLDPCMan::DrawGraph()
 {
 	if (m_mainGraph != nullptr)
 		m_mainGraph->Draw();
+}
+
+wxThread::ExitCode SimThread::Entry()
+{
+
+	m_pHandler->DoSimulate();
+	
+	return (wxThread::ExitCode)0;     // success
 }

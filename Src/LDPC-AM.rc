@@ -15,7 +15,7 @@
 // first icon in the executable and the icons are sorted both by their order
 // (Win9x) and by alphabetically (!) (NT), so put this icon first and give it
 // a name starting with "a"
-IDR_APP_MAIN_ICON ICON "res\\2115955.ico"
+IDR_APP_MAIN_ICON ICON "res\\LDPC-Simulator.ico"
 
 // set this to 1 if you don't want to use manifest resource (manifest resource
 // is needed to enable visual styles on Windows XP - see docs/msw/winxp.txt
@@ -33,6 +33,8 @@ IDP_BSC							RCDATA					"res\\BSC.png"
 IDP_PLAY						RCDATA					"res\\play.png"
 IDP_LED_GREEN					RCDATA					"res\\led_green.png"
 IDP_LED_RED						RCDATA					"res\\led_red.png"
+IDP_LEDS						RCDATA					"res\\leds.png"
+IDP_LEDS_MASK					RCDATA					"res\\leds_mask.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //

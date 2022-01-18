@@ -24,7 +24,7 @@ CTannerGraph::CTannerGraph(cv::Mat pchk)
 
 CTannerGraph::~CTannerGraph()
 {
-
+	__CleanUpNode();
 }
 
 void CTannerGraph::CreateLink(int iVNID, int iCNID)
@@ -47,15 +47,19 @@ void CTannerGraph::CreateLink(int iVNID, int iCNID)
 	} while(0);
 }
 
-void CTannerGraph::Initialization( std::vector<double> channel_data, double sigma_2 )
+void CTannerGraph::Initialization( std::vector<double> channel_data, int iChType, double ch_par)
 {
 	do
 	{
 		if (channel_data.size() != m_iN)
 			break;
 		m_dLU.clear();
+
 		for (int i = 0; i < m_iN; i++)
-			m_dLU.push_back(2 * channel_data[i] / sigma_2);
+			if(iChType == 1 )
+				m_dLU.push_back(2 * channel_data[i] / ch_par);
+			else
+				m_dLU.push_back(pow((-1.0), channel_data[i])*log10((1.0- ch_par)/ ch_par));
 
 		for (int c = 0; c < m_iM; c++)
 			for (int k = 0; k < m_pCheckNodesList[c]->GetNumLinks(); k++)				
@@ -170,11 +174,11 @@ bool CTannerGraph::Decision(cv::Mat pchk, wxString& cw)
 	return bRetVal;
 }
 
-wxString CTannerGraph::Decode(std::vector<double> channel_data, double sigma_2, cv::Mat pchk, int iAttempt)
+wxString CTannerGraph::Decode(std::vector<double> channel_data, int iChType, double ch_par, cv::Mat pchk, int iAttempt)
 {
 	wxString	strRetVal = wxEmptyString;
 	int			iIteration = 0;
-	Initialization(channel_data, 0.5);
+	Initialization(channel_data, iChType, ch_par);
 
 	do
 	{
@@ -190,7 +194,7 @@ wxString CTannerGraph::Decode(std::vector<double> channel_data, double sigma_2, 
 
 void CTannerGraph::Draw()
 {
-	int iWidthPadPx = 20;		// Pixel di padding in larghezza
+	int iWidthPadPx = 30;		// Pixel di padding in larghezza
 	int iHeigttPadPx = 20;		// Pixel di padding in altezza
 	int iCircleRadius = 20;		// Raggio cerchi variable nodes
 	int iSquareLenght = 40;		// Lato quadrati check nodes
@@ -251,6 +255,20 @@ void CTannerGraph::Draw()
 		}
 	}
 
-	cv::imwrite("Tanner.bmp", mCanvas);
-	cv::imshow("Tanner Graph", mCanvas);
+	
+	auto axes = CvPlot::plotImage(mCanvas);
+	cv::Mat mat = axes.render(500, 400);
+	axes.setMargins(0, 0, 0, 0);
+	CvPlot::show("Tanner Graph", axes);
+
+}
+
+void CTannerGraph::__CleanUpNode()
+{
+	// istanzio tutti i nodi
+	for (int i = 0; i < m_iN; i++)
+		delete m_pVariableNodesList[i];
+
+	for (int i = 0; i < m_iM; i++)
+		delete m_pCheckNodesList[i];
 }

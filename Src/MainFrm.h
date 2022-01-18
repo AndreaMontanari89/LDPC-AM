@@ -3,6 +3,7 @@
 #pragma once
 
 class CLDPCMan;
+class CMainPanel;
 
 //
 // Classe finestra principale dell'applicazione
@@ -31,7 +32,8 @@ public:
 	// Funzioni
 	//
 public:
-	CLDPCMan*		GetCLDPCMan( void )								{ return( m_pCLDPCMan); };
+	CLDPCMan* GetCLDPCMan(void) { return(m_pCLDPCMan); };
+	CMainPanel* GetMainPanel() { return  m_pMainPanel; };
 
 protected:
 	void			__CloseWindow( wxCloseEvent* pEvent, bool bForcedClose );
@@ -49,6 +51,7 @@ protected:
 	CLDPCMan*			m_pCLDPCMan;								// Punt. al gestore modulo
 
 	uint32_t			m_ui32ObjState;								// Stato oggetto vedi enum CMainFrm::_ObjState
+	CMainPanel*			m_pMainPanel;
 
 //DF//DF	CDbgView*			m_pDbgView[1];									// Punt. alle finestre per la visualizz. immagini di debug
 //DF//DF	int					m_iNumDbgView;									// Num. di finestre presenti in m_pDbgView
