@@ -19,7 +19,7 @@ CMainFrame::CMainFrame( const wxString& strTitle, const wxPoint& pos, const wxSi
 	m_pCLDPCMan = NULL;												// Punt. al gestore xppIPM
 
 
-	wxSize size1( 1500, 950 );
+	wxSize size1( 1500, 950  );
 // Rifare con controllo sulla dimensione video come fatto da holechecker
 
 	long	lStyle = wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE;

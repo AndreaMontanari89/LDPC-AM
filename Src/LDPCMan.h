@@ -102,6 +102,7 @@ protected:
 	void				__OnSimulate(wxCommandEvent& event);
 	void				__OnHSelected(wxCommandEvent& event);
 	void				__OnImgSelected(wxCommandEvent& event);
+	wxString			__ReorderWord(wxString cw, wxString cols_order_file);
 
 public:
 	wxArrayString			m_sasCurrWords;
@@ -137,6 +138,7 @@ protected:
 
 	wxString				m_strFileNameApppchk;
 	wxString				m_strFileNameAppGen;
+	wxString				m_strFileNameColsOrder;
 	wxString				m_strFileNameInput;
 	wxString				m_strFileNameEnc;
 	wxString				m_strFileNameRec;

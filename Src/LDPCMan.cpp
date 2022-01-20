@@ -108,9 +108,10 @@ void CLDPCMan::__OnHSelected(wxCommandEvent& event)
 	wxString strPath = event.GetString();
 	m_strFileNameApppchk = event.GetString().BeforeLast('\\')+"\\H.pchk";
 	m_strFileNameAppGen = event.GetString().BeforeLast('\\') + "\\G.Gen";
+	m_strFileNameColsOrder = event.GetString().BeforeLast('\\') + "\\ColsOrder.txt";
 
 	alist2pchk((char*)strPath.ToStdString().c_str(), (char*)m_strFileNameApppchk.ToStdString().c_str());
-	make_gen((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)"dense", NULL, NULL, NULL, NULL);
+	make_gen((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameColsOrder.ToStdString().c_str(), (char*)"dense", NULL, NULL, NULL, NULL);
 
 }
 
@@ -154,6 +155,7 @@ void CLDPCMan::DoSimulate()
 
 	tf.Close();
 
+
 	srand(time(NULL));
 	transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)strChannel.ToStdString().c_str(), (char*)wxString::Format("%.1f", dParam).ToStdString().c_str());
 
@@ -191,9 +193,15 @@ void CLDPCMan::DoSimulate()
 		int iAtt;
 		cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, m_iMaxTentativi, &iAtt);
 		m_iTentativi.push_back(iAtt);
-		m_sasCurrWordsDecode.push_back(cw.Right(m_ParityCheck.cols - m_ParityCheck.rows));
 
-		if ((cw.Right(m_ParityCheck.cols - m_ParityCheck.rows)) == (m_sasCurrWords[idx]))
+		static bool b = true;
+		if( b)
+			m_sasCurrWordsDecode.push_back(__ReorderWord(cw, m_strFileNameColsOrder).Right(m_ParityCheck.cols - m_ParityCheck.rows));
+		else
+			m_sasCurrWordsDecode.push_back(cw.Right(m_ParityCheck.cols - m_ParityCheck.rows));
+		b = !b;
+
+		if ( cw == m_sasCurrWordsEnc[idx])
 			m_decodeOK.push_back(true);
 		else
 		{
@@ -204,6 +212,8 @@ void CLDPCMan::DoSimulate()
 			}
 			m_decodeOK.push_back(false);
 		}
+
+		
 
 		idx++;
 
@@ -238,6 +248,7 @@ void CLDPCMan::DoSimulate()
 				}
 			}
 		}
+		int g = 0;
 	}
 
 }
@@ -1067,4 +1078,47 @@ wxThread::ExitCode SimThread::Entry()
 		m_pHandler->DoLoadImg();
 	
 	return (wxThread::ExitCode)0;     // success
+}
+
+wxString CLDPCMan::__ReorderWord(wxString cw, wxString cols_order_file)
+{
+	wxTextFile	tf;
+	wxString	strRet=cw;
+	tf.Open(cols_order_file);
+	std::vector<int> vi = IntVectorFromString(tf.GetFirstLine());
+	tf.Close();
+
+	std::map<int, wxChar> map;
+	for (int i = 0; i < vi.size(); i++)
+		map.insert(std::pair<int, wxChar>(vi[i], cw[i]));
+
+	wxString ss;
+	for (int i = 544; i < vi.size(); i++)
+	{
+		std::map<int, wxChar>::iterator it = map.find(i);
+		ss+=it->second;
+	}
+
+	bool swap = true;
+	while (swap)
+	{
+		swap = false;
+		for (int i = 0; i < cw.length()-1; i++)
+		{
+			if (vi[i] > vi[i + 1])
+			{
+				int tmp = vi[i];
+				vi[i] = vi[i+1];
+				vi[i+1] = tmp;
+
+				wxChar ch = strRet[i];
+				strRet[i] = strRet[i+1];
+				strRet[i+1] = ch;
+
+				swap = true;
+			}
+		}
+	}
+	
+	return strRet;
 }
