@@ -28,7 +28,9 @@
 #include <wx/spinctrl.h>
 #include <wx/statbmp.h>
 #include <wx/gauge.h>
+#include <wx/checkbox.h>
 #include <wx/listctrl.h>
+#include <wx/splitter.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -87,18 +89,24 @@ class CMainPanel_Base : public wxPanel
 		wxStaticLine* m_staticline7111;
 		wxPanel* m_pnlLoadGen;
 		wxStaticLine* m_staticline6;
+		wxSplitterWindow* m_splitter2;
 		wxPanel* m_pnlSim;
+		wxPanel* m_panel14;
+		wxCheckBox* m_chkBatch;
+		wxSpinCtrlDouble* m_spnNFrom;
+		wxSpinCtrlDouble* m_spnNTo;
+		wxStaticText* m_staticText22;
+		wxSpinCtrlDouble* m_spnNStep;
+		wxStaticText* m_staticText191;
+		wxSpinCtrl* m_spnAttmpt;
 		wxPanel* m_pnlCfg;
 		wxPanel* m_pnlSimCfg;
 		wxButton* m_bpAvviaSimulazione;
 		wxButton* m_bpAvviaSimulazione1;
 		wxButton* m_btnShowImages;
-		wxStaticText* m_staticText19;
-		wxSpinCtrl* m_spnAttmpt;
 		wxGauge* m_gauge2;
 		wxStaticText* m_txtinfo;
 		wxListCtrl* m_listBoxWord;
-		wxStaticLine* m_staticline62;
 		wxPanel* m_pnlRes;
 		wxButton* m_btnPulisciRisultato;
 		wxListCtrl* m_listResult;
@@ -115,10 +123,10 @@ class CMainPanel_Base : public wxPanel
 		virtual void __OnInsertWord( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnClearList( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnPickBinImage( wxFileDirPickerEvent& event ) { event.Skip(); }
+		virtual void __OnSpnAttempt( wxSpinEvent& event ) { event.Skip(); }
 		virtual void __OnStartSimulation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnStopSimulation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnViewImgs( wxCommandEvent& event ) { event.Skip(); }
-		virtual void __OnSpnAttempt( wxSpinEvent& event ) { event.Skip(); }
 		virtual void __OnCleanRes( wxCommandEvent& event ) { event.Skip(); }
 
 
@@ -134,6 +142,12 @@ class CMainPanel_Base : public wxPanel
 		CMainPanel_Base( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1271,862 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~CMainPanel_Base();
+
+		void m_splitter2OnIdle( wxIdleEvent& )
+		{
+			m_splitter2->SetSashPosition( 0 );
+			m_splitter2->Disconnect( wxEVT_IDLE, wxIdleEventHandler( CMainPanel_Base::m_splitter2OnIdle ), NULL, this );
+		}
 
 };
 

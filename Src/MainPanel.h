@@ -52,9 +52,11 @@ protected:
 	void	__OnStopSimulation(wxCommandEvent& event);
 	void	__OnSpnAttempt(wxSpinEvent& event);
 	void	__OnCleanRes(wxCommandEvent& event);
+	void	__OnSimulationFinished(wxCommandEvent& event);
 
 public:
-	void	SimulationFinished( int bits, int errbits);
+	void	BatchFinished();
+	void	SimulationFinished( int bits, int errbits, double channel_par);
 	void	GenerationFinished();
 	void	DoGenerate();
 	void	StartGeneration();

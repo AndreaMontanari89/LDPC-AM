@@ -11,6 +11,7 @@
 #include "MainPanel.h"
 
 
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Costruttore(i) classe CLDPCMan
@@ -113,144 +114,233 @@ void CLDPCMan::__OnHSelected(wxCommandEvent& event)
 	alist2pchk((char*)strPath.ToStdString().c_str(), (char*)m_strFileNameApppchk.ToStdString().c_str());
 	make_gen((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameColsOrder.ToStdString().c_str(), (char*)"dense", NULL, NULL, NULL, NULL);
 
+	//__ReorderParity(m_strFileNameColsOrder);
+	//cvMat2alist(strPath.ToStdString());
+
+	//alist2pchk((char*)strPath.ToStdString().c_str(), (char*)m_strFileNameApppchk.ToStdString().c_str());
+	//make_gen((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameColsOrder.ToStdString().c_str(), (char*)"dense", NULL, NULL, NULL, NULL);
+	
 }
+
+void CLDPCMan::__SwapParityCol(int c1, int c2)
+{
+
+	cv::Mat mc1 = m_ParityCheck.col(c1).clone();
+	cv::Mat mc2 = m_ParityCheck.col(c2).clone();
+
+	for (int i = 0; i < m_ParityCheck.rows; i++)
+	{
+		m_ParityCheck.at<float>(i, c1) = mc2.at<float>(i, 0);
+		m_ParityCheck.at<float>(i, c2) = mc1.at<float>(i, 0);
+	}
+}
+
 
 void CLDPCMan::DoSimulate()
 {
-	m_strFileNameInput = m_strFileNameApppchk.BeforeLast('\\') + "\\input.txt";
-	m_strFileNameEnc = m_strFileNameApppchk.BeforeLast('\\') + "\\Encode.enc";
-	m_strFileNameRec = m_strFileNameApppchk.BeforeLast('\\') + "\\Rec.rec";
+	double dFrom = m_dBatchFrom;
+	double dTo = m_dBatchTo;
+	double dStep = m_dBatchStep;
 
-	wxString	strChannel;
-	double		dParam;
+	std::vector<std::pair<double, double>> v_statics;
 
-	int			bits = m_sasCurrWords.size() * m_ParityCheck.cols;
-	int			errBits = 0;
+	wxCommandEvent evt(wxEVT_SIMULATION_FINISHED);
 
-	if (m_iChannel == CH_AWGN) {
-		strChannel = "awgn"; dParam = m_dAWGNVar;
+	int iBatchIter = ((m_dBatchTo - m_dBatchFrom) / m_dBatchStep)+1;
+	int iBatchIdx = 0;
+
+	if (!m_bBatch) {
+
+		if (m_iChannel == CH_AWGN) {
+			dFrom = dTo = m_dAWGNVar;
+		}
+		if (m_iChannel == CH_BSC) {
+			dFrom = dTo = m_dBSCPe;
+		}		
 	}
-	if (m_iChannel == CH_BSC) {
-		strChannel = "bsc"; dParam = m_dBSCPe;
-	}
-
-	if (wxFile::Exists(m_strFileNameInput))
-		wxRemove(m_strFileNameInput);
-
-	wxTextFile	tf(m_strFileNameInput);
-	tf.Create();
-
-	for (int i = 0; i < m_sasCurrWords.size(); i++)
-		tf.AddLine(m_sasCurrWords[i]);
-	tf.Write();
-	tf.Close();
-
-	encode((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameInput.ToStdString().c_str(), (char*)m_strFileNameEnc.ToStdString().c_str());
-	
-	tf.Open(m_strFileNameEnc);
-	int idx = 0;
-	m_sasCurrWordsEnc.Clear();
-	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
-		m_sasCurrWordsEnc.push_back(str);
-
-	tf.Close();
 
 
-	srand(time(NULL));
-	transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)strChannel.ToStdString().c_str(), (char*)wxString::Format("%.1f", dParam).ToStdString().c_str());
-
-	tf.Open(m_strFileNameRec);
-	idx = 0;
-	m_sasCurrWordsTx.clear();
-	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
-		m_sasCurrWordsTx.push_back(str);
-	tf.Close();
-
-
-	tf.Open(m_strFileNameRec);
-	wxString	cw;
-	idx = 0;
-	m_sasCurrWordsDecode.clear();
-	m_decodeOK.clear();
-	m_iTentativi.clear();
-	for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
+	do
 	{
-		if (m_bStopSim)
-		{
-			wxGetApp().GetMainWnd()->GetMainPanel()->SimulationFinished(bits, errBits);
-			return;
+		iBatchIdx++;
+		m_strFileNameInput = m_strFileNameApppchk.BeforeLast('\\') + "\\input.txt";
+		m_strFileNameEnc = m_strFileNameApppchk.BeforeLast('\\') + "\\Encode.enc";
+		m_strFileNameRec = m_strFileNameApppchk.BeforeLast('\\') + "\\Rec.rec";
+		m_strFileNameDec = m_strFileNameApppchk.BeforeLast('\\') + "\\Dec.rec";
+		m_strFileNameExt = m_strFileNameApppchk.BeforeLast('\\') + "\\Ext.rec";
+
+		wxString	strChannel;
+		double		dParam = dFrom;
+
+		int			bits = m_sasCurrWords.size() * m_ParityCheck.cols;
+		int			errBits = 0;
+
+		if (m_iChannel == CH_AWGN) {
+			strChannel = "awgn";
+		}
+		if (m_iChannel == CH_BSC) {
+			strChannel = "bsc";
 		}
 
-		std::vector<double> channel;
+		if (wxFile::Exists(m_strFileNameInput))
+			wxRemove(m_strFileNameInput);
 
-		if( m_iChannel == CH_AWGN )
-			channel = DoubleVectorFromString(str);
+		wxTextFile	tf(m_strFileNameInput);
+		tf.Create();
 
-		if (m_iChannel == CH_BSC)
-			for (int c = 0; c < str.length(); c++)
-				channel.push_back(wxAtof(str[c]));
+		for (int i = 0; i < m_sasCurrWords.size(); i++)
+			tf.AddLine(m_sasCurrWords[i]);
+		tf.Write();
+		tf.Close();
 
-		int iAtt;
-		cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, m_iMaxTentativi, &iAtt);
-		m_iTentativi.push_back(iAtt);
+		encode((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameInput.ToStdString().c_str(), (char*)m_strFileNameEnc.ToStdString().c_str());
 
+		tf.Open(m_strFileNameEnc);
+		int idx = 0;
+		m_sasCurrWordsEnc.Clear();
+		for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
+			m_sasCurrWordsEnc.push_back(str);
+
+		tf.Close();
+
+
+		srand(time(NULL));
+		transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)strChannel.ToStdString().c_str(), (char*)wxString::Format("%.1f", dParam).ToStdString().c_str());
+
+		tf.Open(m_strFileNameRec);
+		idx = 0;
+		m_sasCurrWordsTx.clear();
+		for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
+			m_sasCurrWordsTx.push_back(str);
+		tf.Close();
+
+		if (wxFile::Exists(m_strFileNameDec))
+			wxRemoveFile(m_strFileNameDec);
+
+		tf.Open(m_strFileNameRec);
+		wxTextFile tf2(m_strFileNameDec);
+		tf2.Create();
+		wxString	cw;
+		wxArrayString ascw;
+		idx = 0;
+		m_sasCurrWordsDecode.clear();
+		m_decodeOK.clear();
+		m_iTentativi.clear();
 		static bool b = true;
-		if( b)
-			m_sasCurrWordsDecode.push_back(__ReorderWord(cw, m_strFileNameColsOrder).Right(m_ParityCheck.cols - m_ParityCheck.rows));
-		else
-			m_sasCurrWordsDecode.push_back(cw.Right(m_ParityCheck.cols - m_ParityCheck.rows));
-		b = !b;
 
-		if ( cw == m_sasCurrWordsEnc[idx])
-			m_decodeOK.push_back(true);
-		else
+		for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
 		{
-			for (int ch = 0; ch < cw.Len(); ch++)
+			if (m_bStopSim)
 			{
-				if (cw[ch] != m_sasCurrWordsEnc[m_sasCurrWordsDecode.size()-1][ch])
-					errBits++;
+				evt.SetString(wxString::Format("%d;%d;%.4f", bits, errBits, dFrom));
+				wxGetApp().GetMainWnd()->GetMainPanel()->GetEventHandler()->QueueEvent(evt.Clone());			
+				wxGetApp().GetMainWnd()->GetMainPanel()->BatchFinished();
+				break;
 			}
-			m_decodeOK.push_back(false);
+
+			std::vector<double> channel;
+
+			if (m_iChannel == CH_AWGN)
+				channel = DoubleVectorFromString(str);
+
+			if (m_iChannel == CH_BSC)
+				for (int c = 0; c < str.length(); c++)
+					channel.push_back(wxAtof(str[c]));
+
+			int iAtt;
+			cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, m_iMaxTentativi, &iAtt);
+			ascw.push_back(cw);
+			tf2.AddLine(cw);
+			m_iTentativi.push_back(iAtt);
+
+			if (cw == m_sasCurrWordsEnc[idx])
+				m_decodeOK.push_back(true);
+			else
+			{
+				for (int ch = 0; ch < cw.length(); ch++)
+					if (cw[ch] != m_sasCurrWordsEnc[idx][ch])
+						errBits++;
+
+				m_decodeOK.push_back(false);
+			}
+
+			idx++;
+
+			wxGetApp().GetMainWnd()->GetMainPanel()->SetInfo(wxString::Format("Batch %d\\%d | Decodificata parola %d\\%d con %d iterazioni",iBatchIdx, iBatchIter, idx, (int)m_sasCurrWords.size(), iAtt));
 		}
 
-		
+		if (m_bStopSim)
+			break;
 
-		idx++;
+		tf.Close();
+		tf2.Write();
+		tf2.Close();
 
-		wxGetApp().GetMainWnd()->GetMainPanel()->SetInfo(wxString::Format("Decodificata parola %d\\%d con %d iterazioni", idx, (int)m_sasCurrWords.size(), iAtt ));
-	}
-	
-	wxGetApp().GetMainWnd()->GetMainPanel()->SimulationFinished( bits, errBits);
+		extract((char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameDec.ToStdString().c_str(), (char*)m_strFileNameExt.ToStdString().c_str());
 
-
-	if (m_bLoadedImg)
-	{
-		m_ImgRX = cv::Mat::zeros( m_szImgLoaded, CV_8UC1 );
-		m_ImgRX = cv::Scalar(255);
-		int r = 0;
-		int c = 0;
-		for (int i = 0; i < m_sasCurrWordsDecode.size(); i++)
+		tf.Open(m_strFileNameExt);
+		for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
 		{
-			int l;
-			if (i == m_sasCurrWordsDecode.Count() - 1)
-				l = m_sasCurrWordsDecode[i].Len() - m_iPadBitForImage;
-			else
-				l = m_sasCurrWordsDecode[i].Len();
+			m_sasCurrWordsDecode.push_back(str);
+		}
+		tf.Close();
 
-			for (int ch = 0; ch < l; ch++)
+		evt.SetString(wxString::Format("%d;%d;%.4f", bits, errBits, dFrom));
+		wxGetApp().GetMainWnd()->GetMainPanel()->GetEventHandler()->QueueEvent(evt.Clone());
+
+		v_statics.push_back(std::pair<double, double>((double)(errBits) / (double)(bits), dFrom));
+
+
+		if (m_bLoadedImg)
+		{
+			m_ImgRX = cv::Mat::zeros(m_szImgLoaded, CV_8UC1);
+			m_ImgRX = cv::Scalar(255);
+			int r = 0;
+			int c = 0;
+			for (int i = 0; i < m_sasCurrWordsDecode.size(); i++)
 			{
-				if (m_sasCurrWordsDecode[i][ch] == '0') m_ImgRX.at<uchar>(r, c) = 0;
-				c++;
-				if ((c % m_szImgLoaded.width) == 0)
+				int l;
+				if (i == m_sasCurrWordsDecode.Count() - 1)
+					l = m_sasCurrWordsDecode[i].Len() - m_iPadBitForImage;
+				else
+					l = m_sasCurrWordsDecode[i].Len();
+
+				for (int ch = 0; ch < l; ch++)
 				{
-					c = 0;
-					r++;
+					if (m_sasCurrWordsDecode[i][ch] == '0') m_ImgRX.at<uchar>(r, c) = 0;
+					c++;
+					if ((c % m_szImgLoaded.width) == 0)
+					{
+						c = 0;
+						r++;
+					}
 				}
 			}
+			int g = 0;
 		}
-		int g = 0;
+		dFrom += dStep;
+	}while ((dFrom < dTo) && (m_bBatch));
+
+	if (m_bBatch)
+	{
+
+		wxString strFileName = wxDateTime::Now().Format("%d-%m-%Y_%H-%M-%S") + "_Batch.csv";
+		wxTextFile wxtf(strFileName);
+		wxtf.Create();
+
+		if (m_iChannel == CH_AWGN)
+			wxtf.AddLine("BER\tVar");
+		else if (m_iChannel == CH_BSC)
+			wxtf.AddLine("BER\tPe;");
+
+		for( int i=0; i< v_statics.size(); i++)
+			wxtf.AddLine(wxString::Format("%.4f\t %.4f", v_statics[i].first, v_statics[i].second));
+
+		wxtf.Write();
+		wxtf.Close();
 	}
 
+	wxGetApp().GetMainWnd()->GetMainPanel()->BatchFinished();
 }
 
 void CLDPCMan::__OnSimulate(wxCommandEvent& event)
@@ -259,6 +349,14 @@ void CLDPCMan::__OnSimulate(wxCommandEvent& event)
 	m_sasCurrWords.clear();
 	m_sasCurrWords = *sas;
 	delete sas;
+
+	m_bBatch = event.GetInt();
+	wxStringTokenizer strTokA;
+
+	strTokA.SetString(event.GetString(), ";");
+	m_dBatchFrom = wxAtof(strTokA.GetNextToken());
+	m_dBatchTo = wxAtof(strTokA.GetNextToken());
+	m_dBatchStep = wxAtof(strTokA.GetNextToken());
 
 	m_pThread = new SimThread(this);
 	if (m_pThread->Run() != wxTHREAD_NO_ERROR)
@@ -949,6 +1047,83 @@ int CLDPCMan::PostMainProcThreadEvent(int iEvent)
 	return(iFuncRetVal);
 }
 
+void CLDPCMan::cvMat2alist(std::string strFileName)
+{
+	int N = m_ParityCheck.cols;
+	int M = m_ParityCheck.rows;
+
+	std::vector<int> viSizeN;
+	std::vector<int> viSizeM;
+
+	if (wxFile::Exists(strFileName))
+		wxRemoveFile(strFileName);
+
+	wxTextFile tf(strFileName);
+	tf.Create();
+
+	tf.AddLine(wxString::Format("%d %d", N, M) );
+	tf.Write();
+
+	for (int r = 0; r < m_ParityCheck.rows; r++)
+		viSizeN.push_back(cv::countNonZero(m_ParityCheck.row(r)));
+
+	for (int c = 0; c < m_ParityCheck.cols; c++)
+		viSizeM.push_back(cv::countNonZero(m_ParityCheck.col(c)));
+
+	int iMaxN = *std::max_element(viSizeN.begin(), viSizeN.end());
+	int iMaxM = *std::max_element(viSizeM.begin(), viSizeM.end());
+
+	tf.AddLine(wxString::Format("%d %d", iMaxM, iMaxN));
+	tf.Write();
+
+	wxString app;
+	for (int i = 0; i < viSizeM.size(); i++)
+		app += wxString::Format("%d ", viSizeM[i]);
+
+	tf.AddLine(app);
+	tf.Write();
+
+	app.clear();
+	for( int i =0; i< viSizeN.size(); i++)
+		app += wxString::Format("%d ", viSizeN[i]);
+	
+	tf.AddLine(app);
+	tf.Write();
+	app.Clear();
+
+	for (int c = 0; c < m_ParityCheck.cols; c++)
+	{
+		for (int r = 0; r < m_ParityCheck.rows; r++)
+		{
+			if (m_ParityCheck.at<float>(r, c) != 0.0)
+			{
+				app += wxString::Format("%d ", r+1 );
+			}
+		}
+		tf.AddLine(app);
+		app.Clear();
+	}
+	
+	tf.Write();
+	app.Clear();
+
+	for (int r = 0; r < m_ParityCheck.rows; r++)
+	{
+		for (int c = 0; c < m_ParityCheck.cols; c++)
+		{
+			if (m_ParityCheck.at<float>(r, c) != 0.0)
+			{
+				app += wxString::Format("%d ", c + 1);
+			}
+		}
+		tf.AddLine(app);
+		app.Clear();
+	}
+
+	tf.Write();
+	tf.Close();
+}
+
 std::pair<int, int>	CLDPCMan::alist2cvMat(std::string strFileName)
 {
 	int N, M;
@@ -1078,6 +1253,44 @@ wxThread::ExitCode SimThread::Entry()
 		m_pHandler->DoLoadImg();
 	
 	return (wxThread::ExitCode)0;     // success
+}
+
+void CLDPCMan::__ReorderParity( wxString cols_order_file)
+{
+	wxTextFile	tf;
+	tf.Open(cols_order_file);
+	std::vector<int> vi = IntVectorFromString(tf.GetFirstLine());
+	tf.Close();
+
+	//std::map<int, wxChar> map;
+	//for (int i = 0; i < vi.size(); i++)
+	//	map.insert(std::pair<int, wxChar>(vi[i], cw[i]));
+
+	//wxString ss;
+	//for (int i = 544; i < vi.size(); i++)
+	//{
+	//	std::map<int, wxChar>::iterator it = map.find(i);
+	//	ss += it->second;
+	//}
+
+	bool swap = true;
+	while (swap)
+	{
+		swap = false;
+		for (int i = 0; i < vi.size() - 1; i++)
+		{
+			if (vi[i] > vi[i + 1])
+			{
+				int tmp = vi[i];
+				vi[i] = vi[i + 1];
+				vi[i + 1] = tmp;
+
+				__SwapParityCol(i, i + 1);
+
+				swap = true;
+			}
+		}
+	}
 }
 
 wxString CLDPCMan::__ReorderWord(wxString cw, wxString cols_order_file)

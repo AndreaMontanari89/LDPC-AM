@@ -7,6 +7,7 @@ extern "C"
 	int __cdecl alist2pchk(char* alistname, char* pchkname);
 	int __cdecl encode(char* pchk_file, char* gen_file, char* source_file, char* encoded_file);
 	int __cdecl transmit(char* tfile, char* rfile, char* cseed, char* channel_type, char* p1);
+	int __cdecl extract(char* g_file, char* d_file, char* e_file);
 #ifdef __cplusplus
 }
 #endif

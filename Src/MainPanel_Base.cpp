@@ -150,7 +150,7 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_pnlMatriceParita->SetSizer( bSizer3 );
 	m_pnlMatriceParita->Layout();
 	bSizer3->Fit( m_pnlMatriceParita );
-	bHeadSizer->Add( m_pnlMatriceParita, 0, wxEXPAND | wxALL, 0 );
+	bHeadSizer->Add( m_pnlMatriceParita, 1, wxEXPAND | wxALL, 5 );
 
 	m_staticline2 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	bHeadSizer->Add( m_staticline2, 0, wxEXPAND | wxALL, 5 );
@@ -238,7 +238,7 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_pnlChannel->SetSizer( bSizer9 );
 	m_pnlChannel->Layout();
 	bSizer9->Fit( m_pnlChannel );
-	bHeadSizer->Add( m_pnlChannel, 0, wxALL|wxEXPAND, 0 );
+	bHeadSizer->Add( m_pnlChannel, 1, wxEXPAND | wxALL, 5 );
 
 	m_staticline16 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	bHeadSizer->Add( m_staticline16, 0, wxEXPAND | wxALL, 5 );
@@ -331,7 +331,7 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 
 	bSizer141->Add( m_staticText51, 0, wxALL, 5 );
 
-	m_filePicker2 = new wxFilePickerCtrl( m_pnlFiller, wxID_ANY, wxEmptyString, wxT("Select a file"), wxT("*.*"), wxDefaultPosition, wxDefaultSize, wxFLP_DEFAULT_STYLE );
+	m_filePicker2 = new wxFilePickerCtrl( m_pnlFiller, wxID_ANY, wxEmptyString, wxT("Select a file"), wxT("Image files (*.bmp, *.jpg, *.jpeg, *.png, *.gif)|*.bmp;*.jpg;*.jpeg;*.png;*.gif"), wxDefaultPosition, wxDefaultSize, wxFLP_DEFAULT_STYLE );
 	m_filePicker2->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 	m_filePicker2->SetMinSize( wxSize( 450,-1 ) );
 
@@ -369,17 +369,74 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	wxBoxSizer* bSimSizer;
 	bSimSizer = new wxBoxSizer( wxVERTICAL );
 
-	m_pnlSim = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_splitter2 = new wxSplitterWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_BORDER );
+	m_splitter2->Connect( wxEVT_IDLE, wxIdleEventHandler( CMainPanel_Base::m_splitter2OnIdle ), NULL, this );
+
+	m_pnlSim = new wxPanel( m_splitter2, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	m_pnlSim->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 
 	wxBoxSizer* bSizer25;
 	bSizer25 = new wxBoxSizer( wxVERTICAL );
 
-	m_lblMatTitle1 = new wxStaticText( m_pnlSim, wxID_ANY, wxT("Simulazione"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_panel14 = new wxPanel( m_pnlSim, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer221;
+	bSizer221 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_lblMatTitle1 = new wxStaticText( m_panel14, wxID_ANY, wxT("Simulazione"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_lblMatTitle1->Wrap( -1 );
 	m_lblMatTitle1->SetFont( wxFont( 16, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString ) );
 
-	bSizer25->Add( m_lblMatTitle1, 0, wxALL, 5 );
+	bSizer221->Add( m_lblMatTitle1, 0, wxALL, 5 );
+
+
+	bSizer221->Add( 100, 0, 0, wxEXPAND, 5 );
+
+	m_chkBatch = new wxCheckBox( m_panel14, wxID_ANY, wxT("Batch"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer221->Add( m_chkBatch, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_spnNFrom = new wxSpinCtrlDouble( m_panel14, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 0, 10, 0, 1 );
+	m_spnNFrom->SetDigits( 4 );
+	m_spnNFrom->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer221->Add( m_spnNFrom, 0, wxALL, 5 );
+
+	m_spnNTo = new wxSpinCtrlDouble( m_panel14, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 0, 10, 0, 1 );
+	m_spnNTo->SetDigits( 4 );
+	m_spnNTo->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer221->Add( m_spnNTo, 0, wxALL, 5 );
+
+	m_staticText22 = new wxStaticText( m_panel14, wxID_ANY, wxT("Step"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText22->Wrap( -1 );
+	m_staticText22->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer221->Add( m_staticText22, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_spnNStep = new wxSpinCtrlDouble( m_panel14, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxALIGN_RIGHT|wxSP_ARROW_KEYS, 0.001, 10, 0.1, 0.001 );
+	m_spnNStep->SetDigits( 4 );
+	m_spnNStep->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer221->Add( m_spnNStep, 0, wxALL, 5 );
+
+
+	bSizer221->Add( 100, 0, 1, wxEXPAND, 5 );
+
+	m_staticText191 = new wxStaticText( m_panel14, wxID_ANY, wxT("Iterazioni massime per decodifica:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText191->Wrap( -1 );
+	m_staticText191->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer221->Add( m_staticText191, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+	m_spnAttmpt = new wxSpinCtrl( m_panel14, wxID_ANY, wxT("20"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10000, 50 );
+	m_spnAttmpt->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer221->Add( m_spnAttmpt, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
+	m_panel14->SetSizer( bSizer221 );
+	m_panel14->Layout();
+	bSizer221->Fit( m_panel14 );
+	bSizer25->Add( m_panel14, 0, wxEXPAND | wxALL, 0 );
 
 	m_pnlCfg = new wxPanel( m_pnlSim, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer26;
@@ -395,31 +452,17 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_bpAvviaSimulazione1 = new wxButton( m_pnlSimCfg, wxID_ANY, wxT("Stop"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer20->Add( m_bpAvviaSimulazione1, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
-
-	bSizer20->Add( 50, 0, 0, wxEXPAND, 5 );
-
 	m_btnShowImages = new wxButton( m_pnlSimCfg, wxID_ANY, wxT("Visualizza imm."), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer20->Add( m_btnShowImages, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 
 	bSizer20->Add( 0, 0, 1, wxEXPAND, 5 );
 
-	m_staticText19 = new wxStaticText( m_pnlSimCfg, wxID_ANY, wxT("Iterazioni massime per decodifica:"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_staticText19->Wrap( -1 );
-	m_staticText19->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
-
-	bSizer20->Add( m_staticText19, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-
-	m_spnAttmpt = new wxSpinCtrl( m_pnlSimCfg, wxID_ANY, wxT("50"), wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS, 0, 10000, 50 );
-	m_spnAttmpt->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
-
-	bSizer20->Add( m_spnAttmpt, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
-
 
 	m_pnlSimCfg->SetSizer( bSizer20 );
 	m_pnlSimCfg->Layout();
 	bSizer20->Fit( m_pnlSimCfg );
-	bSizer26->Add( m_pnlSimCfg, 1, wxEXPAND | wxALL, 0 );
+	bSizer26->Add( m_pnlSimCfg, 0, wxEXPAND | wxALL, 0 );
 
 	m_gauge2 = new wxGauge( m_pnlCfg, wxID_ANY, 100, wxDefaultPosition, wxSize( -1,-1 ), wxGA_HORIZONTAL );
 	m_gauge2->SetValue( 0 );
@@ -444,18 +487,7 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_pnlSim->SetSizer( bSizer25 );
 	m_pnlSim->Layout();
 	bSizer25->Fit( m_pnlSim );
-	bSimSizer->Add( m_pnlSim, 0, wxEXPAND | wxALL, 0 );
-
-	m_staticline62 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	bSimSizer->Add( m_staticline62, 0, wxEXPAND | wxALL, 5 );
-
-
-	bSizer21->Add( bSimSizer, 0, wxEXPAND, 5 );
-
-	wxBoxSizer* bSimSizer1;
-	bSimSizer1 = new wxBoxSizer( wxVERTICAL );
-
-	m_pnlRes = new wxPanel( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	m_pnlRes = new wxPanel( m_splitter2, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer251;
 	bSizer251 = new wxBoxSizer( wxVERTICAL );
 
@@ -474,7 +506,7 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	bSizer211->Add( m_btnPulisciRisultato, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 
-	bSizer251->Add( bSizer211, 1, wxEXPAND, 5 );
+	bSizer251->Add( bSizer211, 0, wxEXPAND, 5 );
 
 	m_listResult = new wxListCtrl( m_pnlRes, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_REPORT );
 	m_listResult->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
@@ -485,10 +517,11 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_pnlRes->SetSizer( bSizer251 );
 	m_pnlRes->Layout();
 	bSizer251->Fit( m_pnlRes );
-	bSimSizer1->Add( m_pnlRes, 0, wxEXPAND | wxALL, 0 );
+	m_splitter2->SplitHorizontally( m_pnlSim, m_pnlRes, 0 );
+	bSimSizer->Add( m_splitter2, 0, wxEXPAND, 5 );
 
 
-	bSizer21->Add( bSimSizer1, 0, wxEXPAND, 5 );
+	bSizer21->Add( bSimSizer, 0, wxEXPAND, 5 );
 
 
 	this->SetSizer( bSizer21 );
@@ -508,10 +541,10 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_btnIsertWord->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnInsertWord ), NULL, this );
 	m_button31->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnClearList ), NULL, this );
 	m_filePicker2->Connect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickBinImage ), NULL, this );
+	m_spnAttmpt->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CMainPanel_Base::__OnSpnAttempt ), NULL, this );
 	m_bpAvviaSimulazione->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStartSimulation ), NULL, this );
 	m_bpAvviaSimulazione1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStopSimulation ), NULL, this );
 	m_btnShowImages->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewImgs ), NULL, this );
-	m_spnAttmpt->Connect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CMainPanel_Base::__OnSpnAttempt ), NULL, this );
 	m_btnPulisciRisultato->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnCleanRes ), NULL, this );
 }
 
@@ -531,10 +564,10 @@ CMainPanel_Base::~CMainPanel_Base()
 	m_btnIsertWord->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnInsertWord ), NULL, this );
 	m_button31->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnClearList ), NULL, this );
 	m_filePicker2->Disconnect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickBinImage ), NULL, this );
+	m_spnAttmpt->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CMainPanel_Base::__OnSpnAttempt ), NULL, this );
 	m_bpAvviaSimulazione->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStartSimulation ), NULL, this );
 	m_bpAvviaSimulazione1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStopSimulation ), NULL, this );
 	m_btnShowImages->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewImgs ), NULL, this );
-	m_spnAttmpt->Disconnect( wxEVT_COMMAND_SPINCTRL_UPDATED, wxSpinEventHandler( CMainPanel_Base::__OnSpnAttempt ), NULL, this );
 	m_btnPulisciRisultato->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnCleanRes ), NULL, this );
 
 }

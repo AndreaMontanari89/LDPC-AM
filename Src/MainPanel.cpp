@@ -4,6 +4,7 @@
 #include "AppEvents.h"
 
 BEGIN_EVENT_TABLE(CMainPanel, CMainPanel_Base)
+	EVT_COMMAND(wxID_ANY, wxEVT_SIMULATION_FINISHED, CMainPanel::__OnSimulationFinished)
 END_EVENT_TABLE()
 
 CMainPanel::CMainPanel(wxWindow* pParent,
@@ -30,13 +31,18 @@ CMainPanel::CMainPanel(wxWindow* pParent,
 	m_spnPeBSC->Enable(false);
 	m_txtInsertWord->Enable(false);
 
-	m_listBoxWord->InsertColumn(0, "#", wxLIST_FORMAT_LEFT, 60 );
-	m_listBoxWord->InsertColumn(1, "Informazione", wxLIST_FORMAT_LEFT, 300);
-	m_listBoxWord->InsertColumn(2, "Parola di codice", wxLIST_FORMAT_LEFT, 300);
-	m_listBoxWord->InsertColumn(3, "Ricevuto da canale", wxLIST_FORMAT_LEFT, 300);
-	m_listBoxWord->InsertColumn(4, "Decodifica", wxLIST_FORMAT_LEFT, 300);
-	m_listBoxWord->InsertColumn(5, "", wxLIST_FORMAT_LEFT, 20);
-	m_listBoxWord->InsertColumn(6, "Iter.", wxLIST_FORMAT_LEFT, 60);
+	pImageList = new wxImageList(16, 16);
+	pImageList->Add(wxBitmap("IDP_LEDS", wxBITMAP_TYPE_PNG_RESOURCE), wxBitmap("IDP_LEDS_MASK", wxBITMAP_TYPE_PNG_RESOURCE));
+	m_listBoxWord->SetImageList(pImageList, wxIMAGE_LIST_SMALL);
+
+	m_listBoxWord->InsertColumn(0, "", wxLIST_FORMAT_LEFT, 0);
+	m_listBoxWord->InsertColumn(1, "#", wxLIST_FORMAT_LEFT, 60 );
+	m_listBoxWord->InsertColumn(2, "Informazione", wxLIST_FORMAT_LEFT, 300);
+	m_listBoxWord->InsertColumn(3, "Parola di codice", wxLIST_FORMAT_LEFT, 300);
+	m_listBoxWord->InsertColumn(4, "Ricevuto da canale", wxLIST_FORMAT_LEFT, 300);
+	m_listBoxWord->InsertColumn(5, "Decodifica", wxLIST_FORMAT_LEFT, 300);
+	m_listBoxWord->InsertColumn(6, "", wxLIST_FORMAT_LEFT, 20);
+	m_listBoxWord->InsertColumn(7, "Iter.", wxLIST_FORMAT_LEFT, 60);
 
 	m_btnDrawTanner->Enable(false);
 	m_btnViewH->Enable(false);
@@ -51,10 +57,6 @@ CMainPanel::CMainPanel(wxWindow* pParent,
 
 	m_pMan->SetAWGNVar(m_spnVarAWGN->GetValue());
 
-	pImageList = new wxImageList(16, 16);
-	pImageList->Add(wxBitmap("IDP_LEDS", wxBITMAP_TYPE_PNG_RESOURCE), wxBitmap("IDP_LEDS_MASK", wxBITMAP_TYPE_PNG_RESOURCE));
-	m_listBoxWord->SetImageList(pImageList, wxIMAGE_LIST_SMALL);
-	
 	wxItemAttr ia;
 	ia.SetFont(wxFont(13, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxEmptyString));
 	m_listBoxWord->SetHeaderAttr(ia);
@@ -262,9 +264,11 @@ void CMainPanel::__OnStartSimulation(wxCommandEvent& event)
 	m_pMan->m_bStopSim = false;
 
 	for (int i = 0; i < m_listBoxWord->GetItemCount(); i++)
-		sasWord->push_back(m_listBoxWord->GetItemText(i, 1));
+		sasWord->push_back(m_listBoxWord->GetItemText(i, 2));
 
 	evt.SetClientData((void*)sasWord);
+	evt.SetInt(m_chkBatch->GetValue());
+	evt.SetString(wxString::Format("%.4f;%.4f;%.4f;", m_spnNFrom->GetValue(), m_spnNTo->GetValue(), m_spnNStep->GetValue() ));
 	m_pMan->QueueEvent(evt.Clone());
 
 	m_bpAvviaSimulazione->Enable(false);
@@ -304,8 +308,8 @@ void CMainPanel::GenerationFinished()
 	{
 		int iItemIdx = m_listBoxWord->GetItemCount();
 		m_listBoxWord->InsertItem(iItemIdx, "", -1);
-		m_listBoxWord->SetItem(iItemIdx, 0, wxString::Format("%d", m_listBoxWord->GetItemCount()));
-		m_listBoxWord->SetItem(iItemIdx, 1, m_asStringWords[i]);
+		m_listBoxWord->SetItem(iItemIdx, 1, wxString::Format("%d", m_listBoxWord->GetItemCount()));
+		m_listBoxWord->SetItem(iItemIdx, 2, m_asStringWords[i]);
 	}
 
 	m_listBoxWord->ScrollList(0, INT_MAX / 2);
@@ -315,46 +319,56 @@ void CMainPanel::GenerationFinished()
 	this->Refresh();
 }
 
-void CMainPanel::SimulationFinished(int bits, int errbits)
-{ 
-	for (int i = 0; i < m_pMan->m_sasCurrWords.size(); i++)
-	{
-		if( i< m_pMan->m_sasCurrWordsEnc.size())
-			m_listBoxWord->SetItem(i, 2, m_pMan->m_sasCurrWordsEnc[i]);
-		if (i < m_pMan->m_sasCurrWordsTx.size())
-			m_listBoxWord->SetItem(i, 3, m_pMan->m_sasCurrWordsTx[i]);
-		if (i < m_pMan->m_sasCurrWordsDecode.size())
-			m_listBoxWord->SetItem(i, 4, m_pMan->m_sasCurrWordsDecode[i]);
-		if (i < m_pMan->m_decodeOK.size())
-			m_listBoxWord->SetItem(i, 5, "", (m_pMan->m_decodeOK[i]) ? 0:1);
-		if (i < m_pMan->m_iTentativi.size())
-			m_listBoxWord->SetItem(i, 6, wxString::Format("%d", m_pMan->m_iTentativi[i]));
-	}
-
-	m_gauge2->SetValue(0); 
+void CMainPanel::BatchFinished()
+{
+	m_gauge2->SetValue(0);
 	m_bpAvviaSimulazione->Enable(true);
 
 	m_pnlFiller->Enable(true);
 	m_pnlChannel->Enable(true);
 	m_pnlMatriceParita->Enable(true);
 
+	this->Layout();
+	this->Refresh();
+}
+
+void CMainPanel::SimulationFinished(int bits, int errbits, double channel_par)
+{
+	for (int i = 0; i < m_pMan->m_sasCurrWords.size(); i++)
+	{
+		if (i < m_pMan->m_sasCurrWordsEnc.size())
+			m_listBoxWord->SetItem(i, 3, m_pMan->m_sasCurrWordsEnc[i]);
+		if (i < m_pMan->m_sasCurrWordsTx.size())
+			m_listBoxWord->SetItem(i, 4, m_pMan->m_sasCurrWordsTx[i]);
+		if (i < m_pMan->m_sasCurrWordsDecode.size())
+			m_listBoxWord->SetItem(i, 5, m_pMan->m_sasCurrWordsDecode[i]);
+		if (i < m_pMan->m_decodeOK.size())
+			m_listBoxWord->SetItem(i, 6, "", (m_pMan->m_decodeOK[i]) ? 0 : 1);
+		if (i < m_pMan->m_iTentativi.size())
+			m_listBoxWord->SetItem(i, 7, wxString::Format("%d", m_pMan->m_iTentativi[i]));
+	}
+
+
+
+
 	wxString channel = m_rdAWGN->GetValue() ? "AWGN" : "BSC";
-	wxString channel_par = m_rdAWGN->GetValue() ? wxString::Format("%.4f", m_spnVarAWGN->GetValue()) : wxString::Format("%.4f", m_spnPeBSC->GetValue());
+	wxString schannel_par = wxString::Format("%.4f", channel_par);
 	int iItemIdx = m_listResult->GetItemCount();
 	m_listResult->InsertItem(iItemIdx, "", -1);
 	m_listResult->SetItem(iItemIdx, 0, wxString::Format("%d", m_listResult->GetItemCount()));
-	m_listResult->SetItem(iItemIdx, 1, wxString::Format("%.2e", (double)errbits/(double)bits));
-	m_listResult->SetItem(iItemIdx, 2, channel );
-	m_listResult->SetItem(iItemIdx, 3, channel_par );
-	m_listResult->SetItem(iItemIdx, 4, wxString::Format("%.2f", (double)(m_pMan->GetH().cols - m_pMan->GetH().rows)/(double)m_pMan->GetH().cols) );
+	m_listResult->SetItem(iItemIdx, 1, wxString::Format("%.2e", (double)errbits / (double)bits));
+	m_listResult->SetItem(iItemIdx, 2, channel);
+	m_listResult->SetItem(iItemIdx, 3, schannel_par);
+	m_listResult->SetItem(iItemIdx, 4, wxString::Format("%.2f", (double)(m_pMan->GetH().cols - m_pMan->GetH().rows) / (double)m_pMan->GetH().cols));
 	m_listResult->SetItem(iItemIdx, 5, wxString::Format("%d", m_pMan->GetH().cols - m_pMan->GetH().rows));
-	m_listResult->SetItem(iItemIdx, 6, wxString::Format("%d", m_pMan->GetH().cols ));
-	m_listResult->SetItem(iItemIdx, 7, wxString::Format("%d", m_pMan->GetH().rows ));
-	m_listResult->SetItem(iItemIdx, 8, wxString::Format("%d", bits ));
+	m_listResult->SetItem(iItemIdx, 6, wxString::Format("%d", m_pMan->GetH().cols));
+	m_listResult->SetItem(iItemIdx, 7, wxString::Format("%d", m_pMan->GetH().rows));
+	m_listResult->SetItem(iItemIdx, 8, wxString::Format("%d", bits));
 
+	m_listResult->ScrollList(0, INT_MAX / 2);
 
-	this->Layout(); 
-	this->Refresh();
+	wxCommandEvent e;
+	__OnViewImgs(e);
 }
 
 wxThread::ExitCode CMainPanel::GenThread::Entry()
@@ -383,4 +397,15 @@ void CMainPanel::__OnViewImgs(wxCommandEvent& event)
 void CMainPanel::__OnSpnAttempt(wxSpinEvent& event)
 {
 	m_pMan->m_iMaxTentativi = m_spnAttmpt->GetValue();
+}
+
+void CMainPanel::__OnSimulationFinished(wxCommandEvent& event)
+{
+	wxStringTokenizer strTok;
+	strTok.SetString( event.GetString(), ";");
+	wxString s = event.GetString();
+	int g = wxAtoi(strTok.GetNextToken());
+	int h = wxAtoi(strTok.GetNextToken());
+	double f = wxAtof(strTok.GetNextToken());
+	SimulationFinished(g,h,f);
 }
