@@ -128,6 +128,7 @@ public:
 	double					m_dBatchFrom;
 	double					m_dBatchTo;
 	double					m_dBatchStep;
+	bool					m_bCodifica;
 
 	//
 	// Variabili

@@ -147,14 +147,6 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	bSizer3->Add( bSizer7, 0, 0, 0 );
 
 
-	bSizer3->Add( 0, 0, 1, wxEXPAND, 5 );
-
-	m_chkNonCod = new wxCheckBox( m_pnlMatriceParita, wxID_ANY, wxT("Non Codificare"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_chkNonCod->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
-
-	bSizer3->Add( m_chkNonCod, 0, wxALL, 5 );
-
-
 	m_pnlMatriceParita->SetSizer( bSizer3 );
 	m_pnlMatriceParita->Layout();
 	bSizer3->Fit( m_pnlMatriceParita );
@@ -464,6 +456,14 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	bSizer20->Add( m_btnShowImages, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
 
 
+	bSizer20->Add( 100, 0, 0, wxEXPAND, 5 );
+
+	m_chkNonCod = new wxCheckBox( m_pnlSimCfg, wxID_ANY, wxT("Non Codificare"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_chkNonCod->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
+
+	bSizer20->Add( m_chkNonCod, 0, wxALL|wxALIGN_CENTER_VERTICAL, 5 );
+
+
 	bSizer20->Add( 0, 0, 1, wxEXPAND, 5 );
 
 
@@ -539,7 +539,6 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_filePicker1->Connect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickH ), NULL, this );
 	m_btnDrawTanner->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnDrawTanner ), NULL, this );
 	m_btnViewH->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewH ), NULL, this );
-	m_chkNonCod->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnNonCod ), NULL, this );
 	m_rdAWGN->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
 	m_spnVarAWGN->Connect( wxEVT_COMMAND_SPINCTRLDOUBLE_UPDATED, wxSpinDoubleEventHandler( CMainPanel_Base::__OnSpinAWGN ), NULL, this );
 	m_rdBSC->Connect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
@@ -554,6 +553,7 @@ CMainPanel_Base::CMainPanel_Base( wxWindow* parent, wxWindowID id, const wxPoint
 	m_bpAvviaSimulazione->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStartSimulation ), NULL, this );
 	m_bpAvviaSimulazione1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStopSimulation ), NULL, this );
 	m_btnShowImages->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewImgs ), NULL, this );
+	m_chkNonCod->Connect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnNonCod ), NULL, this );
 	m_btnPulisciRisultato->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnCleanRes ), NULL, this );
 }
 
@@ -563,7 +563,6 @@ CMainPanel_Base::~CMainPanel_Base()
 	m_filePicker1->Disconnect( wxEVT_COMMAND_FILEPICKER_CHANGED, wxFileDirPickerEventHandler( CMainPanel_Base::__OnPickH ), NULL, this );
 	m_btnDrawTanner->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnDrawTanner ), NULL, this );
 	m_btnViewH->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewH ), NULL, this );
-	m_chkNonCod->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnNonCod ), NULL, this );
 	m_rdAWGN->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
 	m_spnVarAWGN->Disconnect( wxEVT_COMMAND_SPINCTRLDOUBLE_UPDATED, wxSpinDoubleEventHandler( CMainPanel_Base::__OnSpinAWGN ), NULL, this );
 	m_rdBSC->Disconnect( wxEVT_COMMAND_RADIOBUTTON_SELECTED, wxCommandEventHandler( CMainPanel_Base::__OnChannel ), NULL, this );
@@ -578,6 +577,7 @@ CMainPanel_Base::~CMainPanel_Base()
 	m_bpAvviaSimulazione->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStartSimulation ), NULL, this );
 	m_bpAvviaSimulazione1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnStopSimulation ), NULL, this );
 	m_btnShowImages->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnViewImgs ), NULL, this );
+	m_chkNonCod->Disconnect( wxEVT_COMMAND_CHECKBOX_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnNonCod ), NULL, this );
 	m_btnPulisciRisultato->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( CMainPanel_Base::__OnCleanRes ), NULL, this );
 
 }

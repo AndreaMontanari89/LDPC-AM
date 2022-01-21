@@ -73,6 +73,8 @@ CMainPanel::CMainPanel(wxWindow* pParent,
 	m_listResult->InsertColumn(7, "m", wxLIST_FORMAT_LEFT, 60);
 	m_listResult->InsertColumn(8, "Bits", wxLIST_FORMAT_LEFT, 150);
 	m_listResult->SetHeaderAttr(ia);
+
+	m_pMan->m_bCodifica = !m_chkNonCod->GetValue();
 }
 
 
@@ -221,16 +223,7 @@ void CMainPanel::__OnPickH(wxFileDirPickerEvent& event)
 
 void CMainPanel::__OnNonCod(wxCommandEvent& event)
 {
-	if (m_chkNonCod->GetValue())
-	{
-		m_pnlSim->Enable(true);
-		m_pnlFiller->Enable(true);
-	}
-	else
-	{
-		m_pnlSim->Enable(false);
-		m_pnlFiller->Enable(false);
-	}
+	m_pMan->m_bCodifica = !m_chkNonCod->GetValue();
 }
 
 void CMainPanel::__OnStopSimulation(wxCommandEvent& event)

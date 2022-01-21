@@ -11,6 +11,77 @@
 #include "MainPanel.h"
 
 
+float my_logf(float);
+
+/* compute inverse error functions with maximum error of 2.35793 ulp */
+float my_erfinvf(float a)
+{
+	float p, r, t;
+	t = fmaf(a, 0.0f - a, 1.0f);
+	t = my_logf(t);
+	if (fabsf(t) > 6.125f) { // maximum ulp error = 2.35793
+		p = 3.03697567e-10f; //  0x1.4deb44p-32 
+		p = fmaf(p, t, 2.93243101e-8f); //  0x1.f7c9aep-26 
+		p = fmaf(p, t, 1.22150334e-6f); //  0x1.47e512p-20 
+		p = fmaf(p, t, 2.84108955e-5f); //  0x1.dca7dep-16 
+		p = fmaf(p, t, 3.93552968e-4f); //  0x1.9cab92p-12 
+		p = fmaf(p, t, 3.02698812e-3f); //  0x1.8cc0dep-9 
+		p = fmaf(p, t, 4.83185798e-3f); //  0x1.3ca920p-8 
+		p = fmaf(p, t, -2.64646143e-1f); // -0x1.0eff66p-2 
+		p = fmaf(p, t, 8.40016484e-1f); //  0x1.ae16a4p-1 
+	}
+	else { // maximum ulp error = 2.35002
+		p = 5.43877832e-9f;  //  0x1.75c000p-28 
+		p = fmaf(p, t, 1.43285448e-7f); //  0x1.33b402p-23 
+		p = fmaf(p, t, 1.22774793e-6f); //  0x1.499232p-20 
+		p = fmaf(p, t, 1.12963626e-7f); //  0x1.e52cd2p-24 
+		p = fmaf(p, t, -5.61530760e-5f); // -0x1.d70bd0p-15 
+		p = fmaf(p, t, -1.47697632e-4f); // -0x1.35be90p-13 
+		p = fmaf(p, t, 2.31468678e-3f); //  0x1.2f6400p-9 
+		p = fmaf(p, t, 1.15392581e-2f); //  0x1.7a1e50p-7 
+		p = fmaf(p, t, -2.32015476e-1f); // -0x1.db2aeep-3 
+		p = fmaf(p, t, 8.86226892e-1f); //  0x1.c5bf88p-1 
+	}
+	r = a * p;
+	return r;
+}
+
+/* compute natural logarithm with a maximum error of 0.85089 ulp */
+float my_logf(float a)
+{
+	float i, m, r, s, t;
+	int e;
+
+	m = frexpf(a, &e);
+	if (m < 0.666666667f) { // 0x1.555556p-1
+		m = m + m;
+		e = e - 1;
+	}
+	i = (float)e;
+	/* m in [2/3, 4/3] */
+	m = m - 1.0f;
+	s = m * m;
+	/* Compute log1p(m) for m in [-1/3, 1/3] */
+	r = -0.130310059f;  // -0x1.0ae000p-3
+	t = 0.140869141f;  //  0x1.208000p-3
+	r = fmaf(r, s, -0.121484190f); // -0x1.f19968p-4
+	t = fmaf(t, s, 0.139814854f); //  0x1.1e5740p-3
+	r = fmaf(r, s, -0.166846052f); // -0x1.55b362p-3
+	t = fmaf(t, s, 0.200120345f); //  0x1.99d8b2p-3
+	r = fmaf(r, s, -0.249996200f); // -0x1.fffe02p-3
+	r = fmaf(t, m, r);
+	r = fmaf(r, m, 0.333331972f); //  0x1.5554fap-2
+	r = fmaf(r, m, -0.500000000f); // -0x1.000000p-1
+	r = fmaf(r, s, m);
+	r = fmaf(i, 0.693147182f, r); //  0x1.62e430p-1 // log(2)
+	if (!((a > 0.0f) && (a <= 3.40282346e+38f))) { // 0x1.fffffep+127
+		r = a + a;  // silence NaNs if necessary
+		if (a < 0.0f) r = NAN; //  NaN
+		if (a == 0.0f) r = -INFINITY; // -Inf
+	}
+	return r;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -107,9 +178,13 @@ void CLDPCMan::__OnImgSelected(wxCommandEvent& event)
 void CLDPCMan::__OnHSelected(wxCommandEvent& event)
 {
 	wxString strPath = event.GetString();
-	m_strFileNameApppchk = event.GetString().BeforeLast('\\')+"\\H.pchk";
-	m_strFileNameAppGen = event.GetString().BeforeLast('\\') + "\\G.Gen";
-	m_strFileNameColsOrder = event.GetString().BeforeLast('\\') + "\\ColsOrder.txt";
+
+	if (!wxDir::Exists(strPath.BeforeLast('\\') + "\\tmp\\"))
+		wxMkDir(strPath.BeforeLast('\\') + "\\tmp\\");
+
+	m_strFileNameApppchk = event.GetString().BeforeLast('\\') + "\\tmp\\H.pchk";
+	m_strFileNameAppGen = event.GetString().BeforeLast('\\') + "\\tmp\\G.Gen";
+	m_strFileNameColsOrder = event.GetString().BeforeLast('\\') + "\\tmp\\ColsOrder.txt";
 
 	alist2pchk((char*)strPath.ToStdString().c_str(), (char*)m_strFileNameApppchk.ToStdString().c_str());
 	make_gen((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameColsOrder.ToStdString().c_str(), (char*)"dense", NULL, NULL, NULL, NULL);
@@ -163,6 +238,7 @@ void CLDPCMan::DoSimulate()
 	do
 	{
 		iBatchIdx++;
+
 		m_strFileNameInput = m_strFileNameApppchk.BeforeLast('\\') + "\\input.txt";
 		m_strFileNameEnc = m_strFileNameApppchk.BeforeLast('\\') + "\\Encode.enc";
 		m_strFileNameRec = m_strFileNameApppchk.BeforeLast('\\') + "\\Rec.rec";
@@ -170,9 +246,15 @@ void CLDPCMan::DoSimulate()
 		m_strFileNameExt = m_strFileNameApppchk.BeforeLast('\\') + "\\Ext.rec";
 
 		wxString	strChannel;
+		int			idx = 0;
 		double		dParam = dFrom;
+		int			bits;
 
-		int			bits = m_sasCurrWords.size() * m_ParityCheck.cols;
+		if (m_bCodifica)
+			bits = m_sasCurrWords.size() * m_ParityCheck.cols;
+		else
+			bits = m_sasCurrWords.size() * (m_ParityCheck.cols- m_ParityCheck.rows);
+
 		int			errBits = 0;
 
 		if (m_iChannel == CH_AWGN) {
@@ -193,22 +275,38 @@ void CLDPCMan::DoSimulate()
 		tf.Write();
 		tf.Close();
 
-		encode((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameInput.ToStdString().c_str(), (char*)m_strFileNameEnc.ToStdString().c_str());
+		if (m_bCodifica)
+		{
+			encode((char*)m_strFileNameApppchk.ToStdString().c_str(), (char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameInput.ToStdString().c_str(), (char*)m_strFileNameEnc.ToStdString().c_str());
+			tf.Open(m_strFileNameEnc);
+			idx = 0;
+			m_sasCurrWordsEnc.Clear();
+			for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
+				m_sasCurrWordsEnc.push_back(str);
 
-		tf.Open(m_strFileNameEnc);
-		int idx = 0;
-		m_sasCurrWordsEnc.Clear();
-		for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
-			m_sasCurrWordsEnc.push_back(str);
+			tf.Close();
+		}
+		else
+		{
+			m_sasCurrWordsEnc = m_sasCurrWords;
 
-		tf.Close();
+			if (wxFile::Exists(m_strFileNameEnc))
+				wxRemoveFile(m_strFileNameEnc);
 
+			wxTextFile wxtfe(m_strFileNameEnc);
+			wxtfe.Create();
+
+			for (int i = 0; i < m_sasCurrWordsEnc.size(); i++)
+				wxtfe.AddLine(m_sasCurrWordsEnc[i]);
+
+			wxtfe.Write();
+			wxtfe.Close();
+		}
 
 		srand(time(NULL));
 		transmit((char*)m_strFileNameEnc.ToStdString().c_str(), (char*)m_strFileNameRec.ToStdString().c_str(), (char*)wxString::Format("%d", rand()).ToStdString().c_str(), (char*)strChannel.ToStdString().c_str(), (char*)wxString::Format("%.1f", dParam).ToStdString().c_str());
 
 		tf.Open(m_strFileNameRec);
-		idx = 0;
 		m_sasCurrWordsTx.clear();
 		for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
 			m_sasCurrWordsTx.push_back(str);
@@ -247,8 +345,24 @@ void CLDPCMan::DoSimulate()
 				for (int c = 0; c < str.length(); c++)
 					channel.push_back(wxAtof(str[c]));
 
-			int iAtt;
-			cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, m_iMaxTentativi, &iAtt);
+			int iAtt = 1;
+			if (m_bCodifica)
+			{
+				cw = m_mainGraph->Decode(channel, m_iChannel, dParam, m_ParityCheck, m_iMaxTentativi, &iAtt);
+			}
+			else
+			{
+				wxString strApp;
+				for (int c = 0; c < channel.size(); c++)
+				{
+					if (channel[c] > 0.0)
+						strApp += "1";
+					else
+						strApp += "0";
+				}
+				m_iTentativi.push_back(1);
+				cw = strApp;
+			}
 			ascw.push_back(cw);
 			tf2.AddLine(cw);
 			m_iTentativi.push_back(iAtt);
@@ -263,7 +377,6 @@ void CLDPCMan::DoSimulate()
 
 				m_decodeOK.push_back(false);
 			}
-
 			idx++;
 
 			wxGetApp().GetMainWnd()->GetMainPanel()->SetInfo(wxString::Format("Batch %d\\%d | Decodificata parola %d\\%d con %d iterazioni",iBatchIdx, iBatchIter, idx, (int)m_sasCurrWords.size(), iAtt));
@@ -276,14 +389,22 @@ void CLDPCMan::DoSimulate()
 		tf2.Write();
 		tf2.Close();
 
-		extract((char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameDec.ToStdString().c_str(), (char*)m_strFileNameExt.ToStdString().c_str());
-
-		tf.Open(m_strFileNameExt);
-		for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
+		if (m_bCodifica)
 		{
-			m_sasCurrWordsDecode.push_back(str);
+			extract((char*)m_strFileNameAppGen.ToStdString().c_str(), (char*)m_strFileNameDec.ToStdString().c_str(), (char*)m_strFileNameExt.ToStdString().c_str());
+
+			tf.Open(m_strFileNameExt);
+			for (wxString str = tf.GetFirstLine(); !tf.Eof(); str = tf.GetNextLine())
+			{
+				m_sasCurrWordsDecode.push_back(str);
+			}
+			tf.Close();
 		}
-		tf.Close();
+		else
+		{
+			for( int i=0;i< ascw.size(); i++)
+				m_sasCurrWordsDecode.push_back(ascw[i]);
+		}
 
 		evt.SetString(wxString::Format("%d;%d;%.4f", bits, errBits, dFrom));
 		wxGetApp().GetMainWnd()->GetMainPanel()->GetEventHandler()->QueueEvent(evt.Clone());
@@ -324,17 +445,24 @@ void CLDPCMan::DoSimulate()
 	if (m_bBatch)
 	{
 
-		wxString strFileName = wxDateTime::Now().Format("%d-%m-%Y_%H-%M-%S") + "_Batch.csv";
+		wxString strFileName = wxDateTime::Now().Format("%d-%m-%Y_%H-%M-%S") + "_Batch.txt";
 		wxTextFile wxtf(strFileName);
 		wxtf.Create();
 
 		if (m_iChannel == CH_AWGN)
-			wxtf.AddLine("BER\tVar");
+			wxtf.AddLine("BER\tVar\tEb\\N0\tEb\\N0(dB)");
 		else if (m_iChannel == CH_BSC)
 			wxtf.AddLine("BER\tPe;");
 
 		for( int i=0; i< v_statics.size(); i++)
-			wxtf.AddLine(wxString::Format("%.4f\t %.4f", v_statics[i].first, v_statics[i].second));
+			if((m_iChannel== CH_AWGN) && (v_statics[i].second != 0.0))
+				wxtf.AddLine(wxString::Format("%.4f\t%.4f\t%.4f\t%.4f", v_statics[i].first, v_statics[i].second, 1.0/(2.0* v_statics[i].second), 10.0*log10(1.0 / (2.0 * v_statics[i].second))));
+			else if ((m_iChannel == CH_BSC) && (v_statics[i].second != 0.0))
+			{
+				double xx = v_statics[i].second;
+				double eb = pow(my_erfinvf((2 * xx) + 1), 2.0);
+				wxtf.AddLine(wxString::Format("%.4f\t%.4f\t%.4f\t%.4f", v_statics[i].first, v_statics[i].second, eb, 10*log10(eb)));
+			}
 
 		wxtf.Write();
 		wxtf.Close();
@@ -384,11 +512,11 @@ void CLDPCMan::__OnTimer(wxTimerEvent& Event)
 {
 	int	iTimerID = Event.GetTimer().GetId();
 
-	switch (iTimerID)
-	{
-	default:
-		break;
-	}
+	//switch (iTimerID)
+	//{
+	//default:
+	//	break;
+	//}
 }
 
 //

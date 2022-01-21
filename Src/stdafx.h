@@ -12,6 +12,7 @@
 #include <stdint.h>													// Visual Studio 2010 include stdint.h
 #include <inttypes.h>
 #include <limits>
+#include <math.h>
 								
 
 // File header supplementari da aggiungere in base alle funzionalita' implementate nell'applicazione
