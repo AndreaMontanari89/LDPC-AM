@@ -88,6 +88,7 @@ public:
 	void					DoSimulate();
 	void					DoLoadImg();
 	std::pair<int, int>		alist2cvMat(std::string strFileName	);				// Torna N e M 
+	void					cvMat2alist(std::string strFileName );			
 
 protected:
 	void				__OnTimer(wxTimerEvent& Event);
@@ -103,6 +104,8 @@ protected:
 	void				__OnHSelected(wxCommandEvent& event);
 	void				__OnImgSelected(wxCommandEvent& event);
 	wxString			__ReorderWord(wxString cw, wxString cols_order_file);
+	void				__ReorderParity(wxString cols_order_file);
+	void				__SwapParityCol(int c1, int c2);
 
 public:
 	wxArrayString			m_sasCurrWords;
@@ -121,6 +124,10 @@ public:
 	cv::Mat					m_ImgRX;
 
 	bool					m_bStopSim;
+	bool					m_bBatch;
+	double					m_dBatchFrom;
+	double					m_dBatchTo;
+	double					m_dBatchStep;
 
 	//
 	// Variabili
@@ -142,6 +149,8 @@ protected:
 	wxString				m_strFileNameInput;
 	wxString				m_strFileNameEnc;
 	wxString				m_strFileNameRec;
+	wxString				m_strFileNameDec;
+	wxString				m_strFileNameExt;
 
 	double					m_dAWGNVar;
 	double					m_dBSCPe;
