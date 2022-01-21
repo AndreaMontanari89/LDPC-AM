@@ -217,6 +217,20 @@ void CMainPanel::__OnPickH(wxFileDirPickerEvent& event)
 	}
 }
 
+void CMainPanel::__OnNonCod(wxCommandEvent& event)
+{
+	if (m_chkNonCod->GetValue())
+	{
+		m_pnlSim->Enable(true);
+		m_pnlFiller->Enable(true);
+	}
+	else
+	{
+		m_pnlSim->Enable(false);
+		m_pnlFiller->Enable(false);
+	}
+}
+
 void CMainPanel::__OnStopSimulation(wxCommandEvent& event)
 { 
 	m_pMan->m_bStopSim = true;

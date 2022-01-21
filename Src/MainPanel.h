@@ -52,6 +52,7 @@ protected:
 	void	__OnStopSimulation(wxCommandEvent& event);
 	void	__OnSpnAttempt(wxSpinEvent& event);
 	void	__OnCleanRes(wxCommandEvent& event);
+	void	__OnNonCod(wxCommandEvent& event);
 
 public:
 	void	SimulationFinished( int bits, int errbits);

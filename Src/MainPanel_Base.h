@@ -23,6 +23,7 @@
 #include <wx/bitmap.h>
 #include <wx/image.h>
 #include <wx/icon.h>
+#include <wx/checkbox.h>
 #include <wx/panel.h>
 #include <wx/radiobut.h>
 #include <wx/spinctrl.h>
@@ -58,6 +59,7 @@ class CMainPanel_Base : public wxPanel
 		wxStaticText* m_staticText121;
 		wxButton* m_btnDrawTanner;
 		wxButton* m_btnViewH;
+		wxCheckBox* m_chkNonCod;
 		wxStaticLine* m_staticline2;
 		wxPanel* m_pnlChannel;
 		wxRadioButton* m_rdAWGN;
@@ -107,6 +109,7 @@ class CMainPanel_Base : public wxPanel
 		virtual void __OnPickH( wxFileDirPickerEvent& event ) { event.Skip(); }
 		virtual void __OnDrawTanner( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnViewH( wxCommandEvent& event ) { event.Skip(); }
+		virtual void __OnNonCod( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnChannel( wxCommandEvent& event ) { event.Skip(); }
 		virtual void __OnSpinAWGN( wxSpinDoubleEvent& event ) { event.Skip(); }
 		virtual void __OnSpinBSC( wxSpinDoubleEvent& event ) { event.Skip(); }
