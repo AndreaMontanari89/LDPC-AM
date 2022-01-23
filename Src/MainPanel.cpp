@@ -270,8 +270,7 @@ void CMainPanel::__OnStartSimulation(wxCommandEvent& event)
 
 	m_pMan->m_bStopSim = false;
 
-	for (int i = 0; i < m_listBoxWord->GetItemCount(); i++)
-		sasWord->push_back(m_listBoxWord->GetItemText(i, 2));
+	*sasWord = m_asStringWords;
 
 	evt.SetClientData((void*)sasWord);
 	evt.SetInt(m_chkBatch->GetValue());

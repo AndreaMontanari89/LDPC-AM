@@ -125,11 +125,24 @@ void CTannerGraph::VariableNodeUpdate()
 				{
 					// ricavo la metrica lato CN di quel link
 					double metrics = m_pVariableNodesList[v]->GetNodeMetric(link_m1);
-					dAccum += metrics;
-				}
+					
+					if ((metrics == -INFINITY) && (dAccum == INFINITY) ||
+						(metrics == INFINITY) && (dAccum == -INFINITY))
+						dAccum = 0.0;
+					else
+						dAccum += metrics;
+				} 
 
 			}
-			m_pVariableNodesList[v]->SetMetric(iLinkIdx, m_dLU[v]+dAccum);
+
+			double dMetric;
+			if ((m_dLU[v] == -INFINITY) && (dAccum == INFINITY) ||
+				(m_dLU[v] == INFINITY) && (dAccum == -INFINITY))
+				dMetric = 0.0;
+			else
+				dMetric = m_dLU[v] + dAccum;
+
+			m_pVariableNodesList[v]->SetMetric(iLinkIdx, dMetric);
 		}
 	}
 }

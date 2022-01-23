@@ -406,39 +406,56 @@ void CLDPCMan::DoSimulate()
 				m_sasCurrWordsDecode.push_back(ascw[i]);
 		}
 
-		evt.SetString(wxString::Format("%d;%d;%.4f", bits, errBits, dFrom));
-		wxGetApp().GetMainWnd()->GetMainPanel()->GetEventHandler()->QueueEvent(evt.Clone());
+
 
 		v_statics.push_back(std::pair<double, double>((double)(errBits) / (double)(bits), dFrom));
 
 
 		if (m_bLoadedImg)
 		{
-			m_ImgRX = cv::Mat::zeros(m_szImgLoaded, CV_8UC1);
-			m_ImgRX = cv::Scalar(255);
 			int r = 0;
 			int c = 0;
-			for (int i = 0; i < m_sasCurrWordsDecode.size(); i++)
+			int i;
+			int ch;
+			int l;
+			int b = 0;
+			try
 			{
-				int l;
-				if (i == m_sasCurrWordsDecode.Count() - 1)
-					l = m_sasCurrWordsDecode[i].Len() - m_iPadBitForImage;
-				else
-					l = m_sasCurrWordsDecode[i].Len();
+				m_ImgRX = cv::Mat::zeros(m_szImgLoaded, CV_8UC1);
+				m_ImgRX = cv::Scalar(255);
+				unsigned char* puc = m_ImgRX.data;
 
-				for (int ch = 0; ch < l; ch++)
+				for (i = 0; i < m_sasCurrWordsDecode.size(); i++)
 				{
-					if (m_sasCurrWordsDecode[i][ch] == '0') m_ImgRX.at<uchar>(r, c) = 0;
-					c++;
-					if ((c % m_szImgLoaded.width) == 0)
+					
+					if (i == m_sasCurrWordsDecode.Count() - 1)
+						l = m_sasCurrWordsDecode[i].Len() - m_iPadBitForImage;
+					else
+						l = m_sasCurrWordsDecode[i].Len();
+
+					for (ch = 0; ch < l; ch++)
 					{
-						c = 0;
-						r++;
+						
+						//if (m_sasCurrWordsDecode[i][ch] == '0') m_ImgRX.at<uchar>(r, c) = 0;
+						/*c++;
+						if ((c % m_szImgLoaded.width) == 0)
+						{
+							c = 0;
+							r++;
+						}*/
+						if (m_sasCurrWordsDecode[i][ch] == '0') puc[b] = 0;
+						b++;
 					}
 				}
 			}
-			int g = 0;
+			catch (std::exception& e)
+			{
+				wxString g = e.what();
+				g = g;
+			}
 		}
+		evt.SetString(wxString::Format("%d;%d;%.4f", bits, errBits, dFrom));
+		wxGetApp().GetMainWnd()->GetMainPanel()->GetEventHandler()->QueueEvent(evt.Clone());
 		dFrom += dStep;
 	}while ((dFrom < dTo) && (m_bBatch));
 
